@@ -113,7 +113,13 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void drawPolygon(double[] pointArray)
 	{
-		throw new IllegalStateException("unimplemented");
+		double[] pointArrayScaled = new double[pointArray.length];
+		for(int i = 0; i < pointArray.length; i += 2)
+		{
+			pointArrayScaled[i + 0] = sx(pointArray[i + 0]);
+			pointArrayScaled[i + 1] = sy(pointArray[i + 1]);
+		}
+		gc.drawPolygon(pointArrayScaled);
 	}
 	public void drawPolyline(double[] pointArray)
 	{
