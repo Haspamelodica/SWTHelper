@@ -41,6 +41,10 @@ public class TranslatedGC implements GeneralGC
 			this.imgOffY = s(y);
 		}
 	}
+	public TranslatedGC(GeneralGC gc, Point off)
+	{
+		this(gc, off.x, off.y);
+	}
 	public TranslatedGC(GeneralGC gc, double xOff, double yOff)
 	{
 		this(gc, 1, xOff, yOff, true);
