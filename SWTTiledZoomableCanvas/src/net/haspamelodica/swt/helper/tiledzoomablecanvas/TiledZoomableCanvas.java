@@ -27,7 +27,6 @@ import net.haspamelodica.swt.helper.ImageRegion;
 import net.haspamelodica.swt.helper.ZoomedRegion;
 import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
 import net.haspamelodica.swt.helper.gcs.ClippingGC;
-import net.haspamelodica.swt.helper.gcs.GCDefaultConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
 import net.haspamelodica.swt.helper.gcs.TranslatedGC;
@@ -56,7 +55,6 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	private final Map<ZoomedRegion, ImageRegion>	cachedTiles;
 	private final Set<ZoomedRegion>					unmodifiableCachedTilePositions;
 	private final List<ZoomedRegion>				cachedTilesSortedCache;
-	private final GCDefaultConfig					defaultGCValues;
 
 	private final List<GeneralTileRenderer>							tileRenderersCorrectOrder;
 	private final Map<PixelBasedTileRenderer, GeneralTileRenderer>	pixelBasedTileRenderers;
@@ -124,8 +122,6 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 				}
 			}
 		}
-
-		defaultGCValues = new GCDefaultConfig(tilePool[0].getGC());
 
 		tileRenderersCorrectOrder = new ArrayList<>();
 		pixelBasedTileRenderers = new HashMap<>();
@@ -301,7 +297,6 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 				ClippingGC cgc = new ClippingGC(untranslatedGC, 0, 0, TILE_WIDTH, TILE_WIDTH);
 				TranslatedGC translatedGC = new TranslatedGC(cgc, toRender);
 
-				defaultGCValues.reset(translatedGC);
 				untranslatedGC.fillRectangle(0, 0, TILE_WIDTH, TILE_WIDTH);
 
 				tileRenderersCorrectOrder.forEach(r -> r.renderTile(untranslatedGC, translatedGC, toRender));

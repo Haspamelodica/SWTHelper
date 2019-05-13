@@ -4,10 +4,10 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.graphics.Point;
 
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
+import net.haspamelodica.swt.helper.swtobjectwrappers.Point;
 import net.haspamelodica.swt.helper.zoomablecanvas.ZoomableCanvas;
 
 public class ZoomableCanvasOverlay
@@ -24,16 +24,19 @@ public class ZoomableCanvasOverlay
 	public double	mousePosXOffset	= 30;
 	public double	mousePosYOffset	= 10;
 
-	private final ZoomableCanvas canvas;
+
+	private final ZoomableCanvas	canvas;
+	private final String			scaleUnit;
 
 	private final PaintListener		scaleRenderer;
 	private final PaintListener		mousePosRenderer;
 	private final MouseMoveListener	mouseMoveListener;
 	private int						mouseX, mouseY;
 
-	public ZoomableCanvasOverlay(ZoomableCanvas canvas)
+	public ZoomableCanvasOverlay(ZoomableCanvas canvas, String scaleUnit)
 	{
 		this.canvas = canvas;
+		this.scaleUnit = scaleUnit;
 		scaleRenderer = this::renderScale;
 		mousePosRenderer = this::renderMousePos;
 		mouseMoveListener = this::mouseMoved;
@@ -51,7 +54,7 @@ public class ZoomableCanvasOverlay
 	private void renderScale(PaintEvent e)
 	{
 		GeneralGC gc = new SWTGC(e.gc);
-		Point size = canvas.getSize();
+		org.eclipse.swt.graphics.Point size = canvas.getSize();
 		int bw = canvas.getBorderWidth();
 		double sx = size.x - bw - bw;
 		double sy = size.y - bw - bw;
@@ -65,8 +68,8 @@ public class ZoomableCanvasOverlay
 		gc.drawLine(scaleR, scaleY, scaleL, scaleY);
 		gc.drawLine(scaleR, scaleB, scaleR, scaleT);
 		gc.drawLine(scaleL, scaleB, scaleL, scaleT);
-		String label = scaleWidth + " m";
-		net.haspamelodica.swt.helper.swtobjectwrappers.Point textExtent = gc.textExtent(label);
+		String label = scaleWidth + (scaleUnit == null ? "" : " " + scaleUnit);
+		Point textExtent = gc.textExtent(label);
 		gc.drawText(label, scaleR - textExtent.x - scaleLabelXOffset, scaleY - textExtent.y - spacingScaleLabel, true);
 		gc.disposeThisLayer();
 	}

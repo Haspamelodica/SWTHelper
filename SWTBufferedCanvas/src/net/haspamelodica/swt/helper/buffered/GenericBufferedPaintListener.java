@@ -1,7 +1,6 @@
 package net.haspamelodica.swt.helper.buffered;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -15,11 +14,10 @@ public abstract class GenericBufferedPaintListener<E>
 {
 	private final BiConsumer<E, GC> setGCInEvent;
 
-	private Image			buffer;
-	private GC				bufferGC;
-	private GeneralGC		bufferGeneralGC;
-	private GCDefaultConfig	defaultGCValues;
-	private int				bufW	= -1, bufH = -1;
+	private Image		buffer;
+	private GC			bufferGC;
+	private GeneralGC	bufferGeneralGC;
+	private int			bufW	= -1, bufH = -1;
 
 	public GenericBufferedPaintListener(BiConsumer<E, GC> setGCInEvent)
 	{
@@ -29,13 +27,10 @@ public abstract class GenericBufferedPaintListener<E>
 	{
 		recreateBufferIfNecessary(width + x, height + y, display);
 		GC widgetGC = gc;
-		defaultGCValues.reset(bufferGeneralGC);
-		bufferGC.setForeground(widgetGC.getForeground());
-		bufferGC.setBackground(widgetGC.getBackground());
-		bufferGC.setFont(widgetGC.getFont());
+		GCDefaultConfig gcConfig = new GCDefaultConfig(gc);
 		bufferGC.fillRectangle(x, y, width, height);
 		setGCInEvent.accept(event, bufferGC);
-		unbufferedPaintControl(event);
+		unbufferedPaintControl(event, gcConfig);
 		setGCInEvent.accept(event, widgetGC);
 		widgetGC.drawImage(buffer, 0, 0);
 	}
@@ -48,12 +43,11 @@ public abstract class GenericBufferedPaintListener<E>
 			buffer = new Image(d, w, h);
 			bufferGC = new GC(buffer);
 			bufferGeneralGC = new SWTGC(bufferGC);
-			defaultGCValues = new GCDefaultConfig(bufferGeneralGC);
 			bufW = w;
 			bufH = h;
 		}
 	}
-	public abstract void unbufferedPaintControl(E event);
+	public abstract void unbufferedPaintControl(E event, GCDefaultConfig gcConfig);
 	public void disposeBuffer()
 	{
 		bufferGeneralGC.disposeThisLayer();
@@ -61,14 +55,14 @@ public abstract class GenericBufferedPaintListener<E>
 		buffer.dispose();
 	}
 
-	public static <E> GenericBufferedPaintListener<E> create(BiConsumer<E, GC> setGCInEvent, Consumer<E> unbuffered)
+	public static <E> GenericBufferedPaintListener<E> create(BiConsumer<E, GC> setGCInEvent, BiConsumer<E, GCDefaultConfig> unbuffered)
 	{
 		return new GenericBufferedPaintListener<E>(setGCInEvent)
 		{
 			@Override
-			public void unbufferedPaintControl(E e)
+			public void unbufferedPaintControl(E e, GCDefaultConfig gcConfig)
 			{
-				unbuffered.accept(e);
+				unbuffered.accept(e, gcConfig);
 			}
 		};
 	}

@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
+import net.haspamelodica.swt.helper.gcs.GCDefaultConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
 import net.haspamelodica.swt.helper.gcs.TranslatedGC;
@@ -26,6 +28,9 @@ public class ZoomableCanvas extends BufferedCanvas
 	{
 		super(parent, style);
 
+		GC gc = new GC(this);
+		gc.dispose();
+
 		zoomedRenderersCorrectOrder = new ArrayList<>();
 
 		transformListeners = new ArrayList<>();
@@ -36,9 +41,12 @@ public class ZoomableCanvas extends BufferedCanvas
 	private void render(PaintEvent e)
 	{
 		GeneralGC gc = new SWTGC(e.gc);
+		GCDefaultConfig gcConfig = new GCDefaultConfig(gc);
 		GeneralGC worldGC = new TranslatedGC(gc, zoom, offX, offY, true);
+		gcConfig.reset(worldGC);
 		zoomedRenderersCorrectOrder.forEach(r -> r.render(worldGC));
 		worldGC.disposeThisLayer();
+		gcConfig.reset(gc);
 		gc.disposeThisLayer();
 	}
 	private void updateSize()
