@@ -28,6 +28,7 @@ public abstract class GenericBufferedPaintListener<E>
 		recreateBufferIfNecessary(width + x, height + y, display);
 		GC widgetGC = gc;
 		GCDefaultConfig gcConfig = new GCDefaultConfig(gc);
+		gcConfig.reset(bufferGeneralGC);
 		bufferGC.fillRectangle(x, y, width, height);
 		setGCInEvent.accept(event, bufferGC);
 		unbufferedPaintControl(event, gcConfig);
