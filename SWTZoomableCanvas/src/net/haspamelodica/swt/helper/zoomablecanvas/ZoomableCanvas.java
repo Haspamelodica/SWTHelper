@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
@@ -14,6 +13,7 @@ import net.haspamelodica.swt.helper.gcs.GCDefaultConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
 import net.haspamelodica.swt.helper.gcs.TranslatedGC;
+import net.haspamelodica.swt.helper.swtobjectwrappers.Point;
 
 public class ZoomableCanvas extends BufferedCanvas
 {
@@ -51,7 +51,7 @@ public class ZoomableCanvas extends BufferedCanvas
 	}
 	private void updateSize()
 	{
-		Point size = getSize();
+		org.eclipse.swt.graphics.Point size = getSize();
 		int bw = getBorderWidth();
 		int bw2 = bw + bw;
 		gW = size.x - bw2;
@@ -153,5 +153,21 @@ public class ZoomableCanvas extends BufferedCanvas
 	public static interface TransformListener
 	{
 		public void transformChanged(double offX, double offY, double zoom);
+	}
+	public Point displayToWorldCoords(Point displayCoords)
+	{
+		return displayToWorldCoords(displayCoords.x, displayCoords.y);
+	}
+	public Point displayToWorldCoords(double x, double y)
+	{
+		return new Point((x - offX) / zoom, (y - offY) / zoom);
+	}
+	public Point worldToDisplayCoords(Point worldCoords)
+	{
+		return displayToWorldCoords(worldCoords.x, worldCoords.y);
+	}
+	public Point worldToDisplayCoords(double x, double y)
+	{
+		return new Point(x * zoom + offX, y * zoom + offY);
 	}
 }
