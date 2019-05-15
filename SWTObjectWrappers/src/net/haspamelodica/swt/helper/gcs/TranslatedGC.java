@@ -133,7 +133,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void drawRectangle(Rectangle rect)
 	{
-		throw new IllegalStateException("unimplemented");
+		gc.drawRectangle(rect.translate(imgOffX, imgOffY, z));
 	}
 	public void drawRoundRectangle(double x, double y, double width, double height, double arcWidth, double arcHeight)
 	{
