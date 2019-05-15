@@ -348,5 +348,13 @@ public class Rectangle
 	{
 		return new org.eclipse.swt.graphics.Rectangle((int) x, (int) y, (int) width, (int) height);
 	}
+	public Rectangle translate(double x, double y, double z)
+	{
+		return new Rectangle(this.x * z - x, this.y * z - y, width * z, height * z);
+	}
+	public Rectangle translate(Point off)
+	{
+		return new Rectangle(x + off.x, y + off.y, width, height);
+	}
 
 }
