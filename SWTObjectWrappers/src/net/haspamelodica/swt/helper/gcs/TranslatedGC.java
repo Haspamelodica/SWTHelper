@@ -54,12 +54,14 @@ public class TranslatedGC implements GeneralGC
 	{
 		return s * z;
 	}
-
+	private double si(double s)
+	{
+		return s / z;
+	}
 	private double sx(double x)
 	{
 		return x * z - imgOffX;
 	}
-
 	private double sy(double y)
 	{
 		return y * z - imgOffY;
@@ -279,7 +281,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public double getLineWidth()
 	{
-		return gc.getLineWidth() / z;
+		return si(gc.getLineWidth());
 	}
 	public int getStyle()
 	{
@@ -435,7 +437,10 @@ public class TranslatedGC implements GeneralGC
 	}
 	public Point textExtent(String string)
 	{
-		throw new IllegalStateException("unimplemented");
+		Point textExtent = gc.textExtent(string);
+		textExtent.x = si(textExtent.x);
+		textExtent.y = si(textExtent.y);
+		return textExtent;
 	}
 	public Point textExtent(String string, int flags)
 	{
