@@ -1,7 +1,6 @@
 package net.haspamelodica.swt.helper.swtobjectwrappers;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 
 public class Rectangle
 {
