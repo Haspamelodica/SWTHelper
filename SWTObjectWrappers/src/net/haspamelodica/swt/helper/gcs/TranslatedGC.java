@@ -151,7 +151,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void drawText(String string, double x, double y, boolean isTransparent)
 	{
-		gc.drawText(string, sx(x), sy(y), true);
+		gc.drawText(string, sx(x), sy(y), isTransparent);
 	}
 	public void drawText(String string, double x, double y, int flags)
 	{
