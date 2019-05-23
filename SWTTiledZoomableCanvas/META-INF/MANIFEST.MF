@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SWTTiledZoomableCanvas
+Bundle-SymbolicName: SWTTiledZoomableCanvas
+Bundle-Version: 1.0.0.qualifier
+Export-Package: net.haspamelodica.swt.helper,
+ net.haspamelodica.swt.helper.tiledzoomablecanvas,
+ net.haspamelodica.swt.helper.tiledzoomablecanvas.helper,
+ net.haspamelodica.swt.helper.tiledzoomablecanvas.tilecachingpolicy,
+ net.haspamelodica.swt.helper.tiledzoomablecanvas.tilecachingpolicy.lists
+Require-Bundle: org.eclipse.swt;bundle-version="3.110.0",
+ SWTZoomableCanvas;bundle-version="1.0.0";visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: SWTTiledZoomableCanvas

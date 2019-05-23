@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SWTZoomableCanvas
+Bundle-SymbolicName: SWTZoomableCanvas
+Bundle-Version: 1.0.0.qualifier
+Export-Package: net.haspamelodica.swt.helper.zoomablecanvas,
+ net.haspamelodica.swt.helper.zoomablecanvas.helper
+Require-Bundle: org.eclipse.swt;bundle-version="3.110.0",
+ SWTBufferedCanvas;bundle-version="1.0.0";visibility:=reexport
+Automatic-Module-Name: SWTZoomableCanvas
