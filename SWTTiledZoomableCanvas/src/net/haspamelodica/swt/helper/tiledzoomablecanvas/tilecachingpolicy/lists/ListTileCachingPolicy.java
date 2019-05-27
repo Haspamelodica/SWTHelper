@@ -2,11 +2,11 @@ package net.haspamelodica.swt.helper.tiledzoomablecanvas.tilecachingpolicy.lists
 
 import java.util.List;
 
-import net.haspamelodica.swt.helper.ZoomedRegion;
+import net.haspamelodica.swt.helper.swtobjectwrappers.Rectangle;
 
 public interface ListTileCachingPolicy
 {
-	public List<ZoomedRegion> calculateTileCacheTargetList(double offX, double offY, double zoom);
+	public List<Rectangle> calculateTileCacheTargetList(double offX, double offY, double zoom);
 
 	public default void setCacheSize(int cacheSize)
 	{}

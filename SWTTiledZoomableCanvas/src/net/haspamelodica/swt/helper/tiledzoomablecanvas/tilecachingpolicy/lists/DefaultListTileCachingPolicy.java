@@ -6,23 +6,23 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.haspamelodica.swt.helper.ZoomedRegion;
+import net.haspamelodica.swt.helper.swtobjectwrappers.Rectangle;
 
 public class DefaultListTileCachingPolicy implements ListTileCachingPolicy
 {
-	private final int		tileWidth;
-	private ZoomedRegion	world;
-	private double			xW, yW, wW, hW;
-	private double			gW, gH, maxWH;
+	private final int	tileWidth;
+	private Rectangle	world;
+	private double		xW, yW, wW, hW;
+	private double		gW, gH, maxWH;
 
 	public DefaultListTileCachingPolicy(int tileWidth)
 	{
 		this.tileWidth = tileWidth;
 	}
 	//TilePosition screen = new TilePosition(-offX / zoom, -offY / zoom, Math.max(w, h) / zoom, false);
-	public List<ZoomedRegion> calculateTileCacheTargetList(double offX, double offY, double zoom)
+	public List<Rectangle> calculateTileCacheTargetList(double offX, double offY, double zoom)
 	{
-		List<ZoomedRegion> target = new ArrayList<>();
+		List<Rectangle> target = new ArrayList<>();
 
 		if(world == null)
 			return target;
@@ -40,13 +40,13 @@ public class DefaultListTileCachingPolicy implements ListTileCachingPolicy
 
 		return target;
 	}
-	public void addGridAlignedTiles(List<ZoomedRegion> tiles, double x1, double y1, double w, double h, double xC, double yC, double tileWidth)
+	public void addGridAlignedTiles(List<Rectangle> tiles, double x1, double y1, double w, double h, double xC, double yC, double tileWidth)
 	{
 		double tX = x1 / tileWidth;
 		double tY = y1 / tileWidth;
 		if(!Double.isInfinite(tX) && !Double.isNaN(tX) && !Double.isInfinite(tY) && !Double.isNaN(tY))
 		{
-			List<ZoomedRegion> newTiles = new ArrayList<>();
+			List<Rectangle> newTiles = new ArrayList<>();
 			BigDecimal xBD = new BigDecimal(tX);
 			BigDecimal yBD = new BigDecimal(tY);
 			BigDecimal tileX1 = bigIntVal(xBD);
@@ -55,7 +55,7 @@ public class DefaultListTileCachingPolicy implements ListTileCachingPolicy
 			BigDecimal tileY2 = yBD.add(new BigDecimal(h / tileWidth));
 			for(BigDecimal tileX = tileX1; tileX.compareTo(tileX2) <= 0; tileX = tileX.add(BigDecimal.ONE))
 				for(BigDecimal tileY = tileY1; tileY.compareTo(tileY2) <= 0; tileY = tileY.add(BigDecimal.ONE))
-					newTiles.add(new ZoomedRegion(this.tileWidth, tileX.doubleValue() * tileWidth, tileY.doubleValue() * tileWidth, tileWidth, false));
+					newTiles.add(new Rectangle(tileX.doubleValue() * tileWidth, tileY.doubleValue() * tileWidth, tileWidth, tileWidth));
 			double halfTW = tileWidth / 2;
 			newTiles.sort((t1, t2) ->
 			{
@@ -85,7 +85,8 @@ public class DefaultListTileCachingPolicy implements ListTileCachingPolicy
 		this.yW = y;
 		this.wW = w;
 		this.hW = h;
-		world = new ZoomedRegion(tileWidth, x, y, Math.max(w, h), false);
+		double maxWH = Math.max(w, h);
+		world = new Rectangle(x, y, maxWH, maxWH);
 	}
 	public void setScreenSize(double w, double h)
 	{

@@ -24,12 +24,13 @@ import org.eclipse.swt.widgets.Shell;
 import net.haspamelodica.swt.helper.ClippingHelper;
 import net.haspamelodica.swt.helper.ClippingHelper.RectangleClippingResult;
 import net.haspamelodica.swt.helper.ImageRegion;
-import net.haspamelodica.swt.helper.ZoomedRegion;
-import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
+	import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
 import net.haspamelodica.swt.helper.gcs.ClippingGC;
+import net.haspamelodica.swt.helper.gcs.GCDefaultConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
 import net.haspamelodica.swt.helper.gcs.TranslatedGC;
+import net.haspamelodica.swt.helper.swtobjectwrappers.Rectangle;
 import net.haspamelodica.swt.helper.tiledzoomablecanvas.tilecachingpolicy.ListTileCachingPolicyAdapter;
 import net.haspamelodica.swt.helper.tiledzoomablecanvas.tilecachingpolicy.TileCachingPolicy;
 import net.haspamelodica.swt.helper.tiledzoomablecanvas.tilecachingpolicy.lists.DefaultListTileCachingPolicy;
@@ -44,18 +45,18 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	private static final int	TILE_CACHE_SIZE			= TILE_CACHE_IMAGES * TILES_PER_IMAGE_SIDE * TILES_PER_IMAGE_SIDE;
 	private static final int	TILE_WIDTH				= 100;
 
-	private final Display							display;
-	private final List<Resource>					toDispose;
-	private final Color								noWorldColor;
-	private final TileCachingPolicy					tileCachingPolicy;
-	private final ImageRegion[]						tilePool;
-	private int										currentPoolSize;
-	private final Image								tileRedrawCacheImage;
-	private final GeneralGC							tileRedrawCacheImageGC;
-	private final Map<ZoomedRegion, ImageRegion>	cachedTiles;
-	private final Set<ZoomedRegion>					unmodifiableCachedTilePositions;
-	private final List<ZoomedRegion>				cachedTilesSortedCache;
-	private GCDefaultConfig							defaultGCValues;
+	private final Display						display;
+	private final List<Resource>				toDispose;
+	private final Color							noWorldColor;
+	private final TileCachingPolicy				tileCachingPolicy;
+	private final ImageRegion[]					tilePool;
+	private int									currentPoolSize;
+	private final Image							tileRedrawCacheImage;
+	private final GeneralGC						tileRedrawCacheImageGC;
+	private final Map<Rectangle, ImageRegion>	cachedTiles;
+	private final Set<Rectangle>				unmodifiableCachedTilePositions;
+	private final List<Rectangle>				cachedTilesSortedCache;
+	private GCDefaultConfig						defaultGCValues;
 
 	private final List<GeneralTileRenderer>							tileRenderersCorrectOrder;
 	private final Map<PixelBasedTileRenderer, GeneralTileRenderer>	pixelBasedTileRenderers;
@@ -64,7 +65,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	private double wX1, wY1, wX2, wY2, wW, wH;
 
 	private final Object	tileRedrawStateLock;
-	private ZoomedRegion	tileToRedraw;
+	private Rectangle		tileToRedraw;
 	private int				tileRedrawState;
 
 	public TiledZoomableCanvas(Composite parent, int style)
@@ -174,11 +175,11 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 			cachedTilesSortedCache.addAll(unmodifiableCachedTilePositions);
 			cachedTilesSortedCache.removeIf(t -> !t.intersects(wX1, wY1, wW, wH));
 			double bestWidth = TILE_WIDTH / zoom;
-			cachedTilesSortedCache.sort((a, b) -> (int) Math.signum(Math.abs(b.w - bestWidth) - Math.abs(a.w - bestWidth)));
+			cachedTilesSortedCache.sort((a, b) -> (int) Math.signum(Math.abs(b.width - bestWidth) - Math.abs(a.width - bestWidth)));
 			for(Rectangle tilePos : cachedTilesSortedCache)
 				drawTile(gc, tilePos, cachedTiles.get(tilePos));
-			//			if(cachedTilesSortedCache.size() > 0)
-			//				drawTile(gc, cachedTilesSortedCache.get(cachedTilesSortedCache.size() - 1), cachedTiles.get(cachedTilesSortedCache.get(cachedTilesSortedCache.size() - 1)));
+			//if(cachedTilesSortedCache.size() > 0)
+			//	drawTile(gc, cachedTilesSortedCache.get(cachedTilesSortedCache.size() - 1), cachedTiles.get(cachedTilesSortedCache.get(cachedTilesSortedCache.size() - 1)));
 			cachedTilesSortedCache.clear();
 		}
 	}
@@ -252,11 +253,11 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 		GeneralTileRenderer generalRenderer = pixelBasedTileRenderers.remove(renderer);
 		tileRenderersCorrectOrder.remove(generalRenderer);
 	}
-	private void drawTile(GeneralGC worldGC, ZoomedRegion tilePos, ImageRegion tile)
+	private void drawTile(GeneralGC worldGC, Rectangle tilePos, ImageRegion tile)
 	{
 		RectangleClippingResult c = ClippingHelper.clipRectangleRectangleSrcAsInts(
 				0, 0, TILE_WIDTH, TILE_WIDTH,
-				tilePos.x, tilePos.y, tilePos.x + tilePos.w, tilePos.y + tilePos.w,
+				tilePos.x, tilePos.y, tilePos.x + tilePos.width, tilePos.y + tilePos.height,
 				wX1, wY1, wX2, wY2);
 		if(c != null)
 			tile.drawTo(worldGC,
@@ -267,22 +268,25 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	{
 		if(currentPoolSize != 0)
 		{
-			ZoomedRegion toRender = tileCachingPolicy.getNextTileToRender(offX, offY, zoom, unmodifiableCachedTilePositions);
-			if(toRender != null && !cachedTiles.containsKey(toRender) && !isDisposed())
-			{
-				int oldTileRedrawState;
-				synchronized(tileRedrawStateLock)
+			Rectangle toRender = tileCachingPolicy.getNextTileToRender(offX, offY, zoom, unmodifiableCachedTilePositions);
+			if(toRender != null)
+				if(toRender.width != toRender.height)
+					throw new IllegalArgumentException("Only square tiles supported at the moment");
+				else if(!cachedTiles.containsKey(toRender) && !isDisposed())
 				{
-					oldTileRedrawState = tileRedrawState;
-					if(tileRedrawState == 0 || tileRedrawState == 1)
+					int oldTileRedrawState;
+					synchronized(tileRedrawStateLock)
 					{
-						tileRedrawState = 1;
-						tileToRedraw = toRender;
+						oldTileRedrawState = tileRedrawState;
+						if(tileRedrawState == 0 || tileRedrawState == 1)
+						{
+							tileRedrawState = 1;
+							tileToRedraw = toRender;
+						}
 					}
+					if(oldTileRedrawState == 0)
+						display.asyncExec(this::renderTile);
 				}
-				if(oldTileRedrawState == 0)
-					display.asyncExec(this::renderTile);
-			}
 		} else
 			System.out.println("Oh no!");
 	}
@@ -290,7 +294,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	{
 		if(!isDisposed())
 		{
-			ZoomedRegion toRender;
+			Rectangle toRender;
 			synchronized(tileRedrawStateLock)
 			{
 				toRender = tileToRedraw;
@@ -301,7 +305,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 			{
 				GeneralGC untranslatedGC = tileRedrawCacheImageGC;
 				ClippingGC cgc = new ClippingGC(untranslatedGC, 0, 0, TILE_WIDTH, TILE_WIDTH);
-				TranslatedGC translatedGC = new TranslatedGC(cgc, toRender.x, toRender.y, TILE_WIDTH / toRender.w, false);
+				TranslatedGC translatedGC = new TranslatedGC(cgc, toRender.x, toRender.y, TILE_WIDTH / toRender.width, false);
 				defaultGCValues.reset(translatedGC);
 
 				untranslatedGC.fillRectangle(0, 0, TILE_WIDTH, TILE_WIDTH);
@@ -335,7 +339,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 			freeAll(tileCachingPolicy.getTilesToFree(offX, offY, zoom, unmodifiableCachedTilePositions));
 		}
 	}
-	private void freeAll(Set<ZoomedRegion> toFree)
+	private void freeAll(Set<Rectangle> toFree)
 	{
 		synchronized(cachedTiles)
 		{
@@ -343,7 +347,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 				toFree.forEach(this::freeWithoutRedraw);
 		}
 	}
-	private void freeWithoutRedraw(ZoomedRegion tilePos)
+	private void freeWithoutRedraw(Rectangle tilePos)
 	{
 		synchronized(cachedTiles)
 		{
@@ -385,18 +389,18 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	}
 	private static interface GeneralTileRenderer
 	{
-		public void renderTile(GeneralGC untranslatedGC, GeneralGC translatedGC, ZoomedRegion tilePos);
+		public void renderTile(GeneralGC untranslatedGC, GeneralGC translatedGC, Rectangle tilePos);
 		static GeneralTileRenderer create(PixelBasedTileRenderer renderer)
 		{
 			return new GeneralTileRenderer()
 			{
 				@Override
-				public void renderTile(GeneralGC untranslatedGC, GeneralGC translatedGC, ZoomedRegion tilePos)
+				public void renderTile(GeneralGC untranslatedGC, GeneralGC translatedGC, Rectangle tilePos)
 				{
 					Color oldForeground = untranslatedGC.getForeground();
 					int oldAlpha = untranslatedGC.getAlpha();
 
-					double pxWidth = TILE_WIDTH / tilePos.w;
+					double pxWidth = TILE_WIDTH / tilePos.width;
 
 					int xDst, yDst;
 					double xImg, yImg;
@@ -421,7 +425,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 			return new GeneralTileRenderer()
 			{
 				@Override
-				public void renderTile(GeneralGC untranslatedGC, GeneralGC translatedGC, ZoomedRegion tilePos)
+				public void renderTile(GeneralGC untranslatedGC, GeneralGC translatedGC, Rectangle tilePos)
 				{
 					renderer.renderTile(translatedGC, tilePos);
 				}
@@ -438,14 +442,14 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	}
 	public static interface TileBasedTileRenderer
 	{
-		public void renderTile(GeneralGC gc, ZoomedRegion tilePos);
+		public void renderTile(GeneralGC gc, Rectangle tilePos);
 	}
 
 	//debug code
 	private void drawAllTileOutlines(GeneralGC gc)
 	{
-		for(ZoomedRegion tilePos : cachedTiles.keySet())
-			gc.drawRectangle(tilePos.x, tilePos.y, tilePos.w, tilePos.w);
+		for(Rectangle tilePos : cachedTiles.keySet())
+			gc.drawRectangle(tilePos.x, tilePos.y, tilePos.width, tilePos.height);
 	}
 	private void openImgShell(Image img, int imgI)
 	{

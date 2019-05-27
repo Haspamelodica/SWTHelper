@@ -2,13 +2,13 @@ package net.haspamelodica.swt.helper.tiledzoomablecanvas.tilecachingpolicy;
 
 import java.util.Set;
 
-import net.haspamelodica.swt.helper.ZoomedRegion;
+import net.haspamelodica.swt.helper.swtobjectwrappers.Rectangle;
 
 public interface TileCachingPolicy
 {
-	public ZoomedRegion getNextTileToRender(double offX, double offY, double zoom, Set<ZoomedRegion> cachedTilePositions);
+	public Rectangle getNextTileToRender(double offX, double offY, double zoom, Set<Rectangle> cachedTilePositions);
 
-	public Set<ZoomedRegion> getTilesToFree(double offX, double offY, double zoom, Set<ZoomedRegion> cachedTilePositions);
+	public Set<Rectangle> getTilesToFree(double offX, double offY, double zoom, Set<Rectangle> cachedTilePositions);
 
 	public default void setCacheSize(int cacheSize)
 	{}

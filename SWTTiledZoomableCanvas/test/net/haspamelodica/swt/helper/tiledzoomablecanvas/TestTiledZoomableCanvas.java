@@ -23,11 +23,11 @@ public class TestTiledZoomableCanvas
 		canvas.addTileRenderer((gc, t) ->
 		{
 			Font oldFont = gc.getFont();
-			gc.setFont(oldFont.unscale(FONT_SCALE / t.w));
-			gc.drawText("Draw call #" + callIndex ++ + "\n" + t.x + '|' + t.y + '\n' + t.w + '|' + t.w, t.x, t.y);
+			gc.setFont(oldFont.unscale(FONT_SCALE / t.width));
+			gc.drawText("Draw call #" + callIndex ++ + "\n" + t.x + '|' + t.y + '\n' + t.width + '|' + t.height, t.x, t.y);
 			gc.setFont(oldFont);
-			gc.drawRectangle(t.x, t.y, t.w, t.w);
-			gc.drawOval(t.x, t.y, t.w, t.w);
+			gc.drawRectangle(t.x, t.y, t.width, t.height);
+			gc.drawOval(t.x, t.y, t.width, t.height);
 			gc.drawText("Test", -10, -10, true);
 			gc.setBackground(display.getSystemColor(SWT.COLOR_BLUE));
 			gc.setAlpha(100);
