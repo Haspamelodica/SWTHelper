@@ -173,8 +173,9 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 		{
 			cachedTilesSortedCache.addAll(unmodifiableCachedTilePositions);
 			cachedTilesSortedCache.removeIf(t -> !t.intersects(wX1, wY1, wW, wH));
-			cachedTilesSortedCache.sort((a, b) -> (int) Math.signum(Math.abs(b.zoom - zoom) - Math.abs(a.zoom - zoom)));
-			for(ZoomedRegion tilePos : cachedTilesSortedCache)
+			double bestWidth = TILE_WIDTH / zoom;
+			cachedTilesSortedCache.sort((a, b) -> (int) Math.signum(Math.abs(b.w - bestWidth) - Math.abs(a.w - bestWidth)));
+			for(Rectangle tilePos : cachedTilesSortedCache)
 				drawTile(gc, tilePos, cachedTiles.get(tilePos));
 			//			if(cachedTilesSortedCache.size() > 0)
 			//				drawTile(gc, cachedTilesSortedCache.get(cachedTilesSortedCache.size() - 1), cachedTiles.get(cachedTilesSortedCache.get(cachedTilesSortedCache.size() - 1)));
@@ -395,7 +396,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 					Color oldForeground = untranslatedGC.getForeground();
 					int oldAlpha = untranslatedGC.getAlpha();
 
-					double pxWidth = 1 / tilePos.zoom;
+					double pxWidth = TILE_WIDTH / tilePos.w;
 
 					int xDst, yDst;
 					double xImg, yImg;
