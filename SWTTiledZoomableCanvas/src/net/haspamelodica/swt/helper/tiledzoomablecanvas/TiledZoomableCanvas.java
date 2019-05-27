@@ -400,18 +400,19 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 					Color oldForeground = untranslatedGC.getForeground();
 					int oldAlpha = untranslatedGC.getAlpha();
 
-					double pxWidth = TILE_WIDTH / tilePos.width;
+					double pxWidthX = TILE_WIDTH / tilePos.width;
+					double pxWidthY = TILE_WIDTH / tilePos.height;
 
 					int xDst, yDst;
 					double xImg, yImg;
-					for(xDst = 0, xImg = tilePos.x; xDst < TILE_WIDTH; xDst ++, xImg += pxWidth)
-						for(yDst = 0, yImg = tilePos.y; yDst < TILE_WIDTH; yDst ++, yImg += pxWidth)
+					for(xDst = 0, xImg = tilePos.x; xDst < TILE_WIDTH; xDst ++, xImg += pxWidthX)
+						for(yDst = 0, yImg = tilePos.y; yDst < TILE_WIDTH; yDst ++, yImg += pxWidthY)
 						{
-							Color col = renderer.getColorAt(xImg, yImg, pxWidth);
+							Color col = renderer.getColorAt(xImg, yImg, pxWidthX, pxWidthY);
 							if(col != null)
 							{
 								untranslatedGC.setForeground(col);
-								untranslatedGC.setAlpha(renderer.getAlphaAt(xImg, yImg, pxWidth));
+								untranslatedGC.setAlpha(renderer.getAlphaAt(xImg, yImg, pxWidthX, pxWidthY));
 								untranslatedGC.drawPoint(xDst, yDst);
 							}
 						}
@@ -434,11 +435,11 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	}
 	public static interface PixelBasedTileRenderer
 	{
-		public default int getAlphaAt(double x, double y, double pxWidth)
+		public default int getAlphaAt(double x, double y, double pxWidthX, double pxWidthY)
 		{
 			return 255;
 		}
-		public Color getColorAt(double x, double y, double pxWidth);
+		public Color getColorAt(double x, double y, double pxWidthX, double pxWidthY);
 	}
 	public static interface TileBasedTileRenderer
 	{
