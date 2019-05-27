@@ -6,12 +6,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import net.haspamelodica.swt.helper.swtobjectwrappers.Font;
-import net.haspamelodica.swt.helper.tiledzoomablecanvas.TiledZoomableCanvas;
 import net.haspamelodica.swt.helper.zoomablecanvas.helper.ZoomableCanvasUserInput;
 
 public class TestTiledZoomableCanvas
 {
-	private static final int	WIDTH	= 300, HEIGHT = 100;
+	private static final int	WIDTH		= 300, HEIGHT = 100;
+	private static final double	FONT_SCALE	= 100;
 	private static int			callIndex;
 
 	public static void main(String[] args)
@@ -23,7 +23,7 @@ public class TestTiledZoomableCanvas
 		canvas.addTileRenderer((gc, t) ->
 		{
 			Font oldFont = gc.getFont();
-			gc.setFont(oldFont.unscale(t.zoom));
+			gc.setFont(oldFont.unscale(FONT_SCALE / t.w));
 			gc.drawText("Draw call #" + callIndex ++ + "\n" + t.x + '|' + t.y + '\n' + t.w + '|' + t.w, t.x, t.y);
 			gc.setFont(oldFont);
 			gc.drawRectangle(t.x, t.y, t.w, t.w);
