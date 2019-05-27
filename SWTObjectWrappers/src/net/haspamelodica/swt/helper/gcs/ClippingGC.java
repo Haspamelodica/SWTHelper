@@ -76,7 +76,14 @@ public class ClippingGC implements GeneralGC
 	}
 	public void drawImage(Image image, double srcX, double srcY, double srcWidth, double srcHeight, double destX, double destY, double destWidth, double destHeight)
 	{
-		gc.drawImage(image, srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth, destHeight);
+		RectangleClippingResult c = ClippingHelper.clipRectangleRectangleSrcAsInts(
+				srcX, srcY, srcX + srcWidth, srcY + srcHeight,
+				destX, destY, destX + destWidth, destY + destHeight,
+				minDstX1, minDstY1, maxDstX2, maxDstY2);
+		if(c != null)
+			gc.drawImage(image,
+					c.srcX1, c.srcY1, c.srcX2 - c.srcX1, c.srcY2 - c.srcY1,
+					c.dstX1, c.dstY1, c.dstX2 - c.dstX1, c.dstY2 - c.dstY1);
 	}
 	public void drawOval(double x, double y, double width, double height)
 	{
