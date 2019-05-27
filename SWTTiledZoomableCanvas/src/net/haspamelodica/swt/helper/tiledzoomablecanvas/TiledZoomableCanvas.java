@@ -55,6 +55,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	private final Map<ZoomedRegion, ImageRegion>	cachedTiles;
 	private final Set<ZoomedRegion>					unmodifiableCachedTilePositions;
 	private final List<ZoomedRegion>				cachedTilesSortedCache;
+	private GCDefaultConfig							defaultGCValues;
 
 	private final List<GeneralTileRenderer>							tileRenderersCorrectOrder;
 	private final Map<PixelBasedTileRenderer, GeneralTileRenderer>	pixelBasedTileRenderers;
@@ -123,6 +124,8 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 			}
 		}
 
+		defaultGCValues = new GCDefaultConfig(tilePool[0].getGC());
+
 		tileRenderersCorrectOrder = new ArrayList<>();
 		pixelBasedTileRenderers = new HashMap<>();
 		tileBasedTileRenderers = new HashMap<>();
@@ -164,6 +167,8 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	}
 	private void renderWorld(GeneralGC gc)
 	{
+		//if something (like BG color) changes, use this new "config" also for tiles getting drawn from now on
+		defaultGCValues = new GCDefaultConfig(gc);
 		synchronized(cachedTiles)
 		{
 			cachedTilesSortedCache.addAll(unmodifiableCachedTilePositions);
@@ -296,6 +301,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 				GeneralGC untranslatedGC = tileRedrawCacheImageGC;
 				ClippingGC cgc = new ClippingGC(untranslatedGC, 0, 0, TILE_WIDTH, TILE_WIDTH);
 				TranslatedGC translatedGC = new TranslatedGC(cgc, toRender);
+				defaultGCValues.reset(translatedGC);
 
 				untranslatedGC.fillRectangle(0, 0, TILE_WIDTH, TILE_WIDTH);
 
