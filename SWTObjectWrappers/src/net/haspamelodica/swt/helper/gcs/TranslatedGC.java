@@ -12,7 +12,6 @@ import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.graphics.Region;
 import org.eclipse.swt.graphics.Transform;
 
-import net.haspamelodica.swt.helper.ZoomedRegion;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Font;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Path;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Point;
@@ -23,14 +22,10 @@ public class TranslatedGC implements GeneralGC
 	private final GeneralGC	gc;
 	private final double	imgOffX, imgOffY, zoom;
 
-	public TranslatedGC(GeneralGC gc, ZoomedRegion tilePos)
-	{
-		this(gc, tilePos.zoom, tilePos.x, tilePos.y, false);
-	}
-	public TranslatedGC(GeneralGC gc, double z, double x, double y, boolean invertOffset)
+	public TranslatedGC(GeneralGC gc, double x, double y, double zoom,  boolean invertOffset)
 	{
 		this.gc = gc;
-		this.zoom = z;
+		this.zoom = zoom;
 		if(invertOffset)
 		{
 			this.imgOffX = -x;
@@ -47,7 +42,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public TranslatedGC(GeneralGC gc, double xOff, double yOff)
 	{
-		this(gc, 1, xOff, yOff, true);
+		this(gc, xOff, yOff, 1,  true);
 	}
 
 	private double s(double s)

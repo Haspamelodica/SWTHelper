@@ -44,7 +44,7 @@ public class ZoomableCanvas extends BufferedCanvas
 		GeneralGC gc = new SWTGC(e.gc);
 		GCDefaultConfig gcConfig = new GCDefaultConfig(gc);
 		GeneralGC cgc = new ClippingGC(gc, 0, 0, gW, gH);
-		GeneralGC worldGC = new TranslatedGC(cgc, zoom, offX, offY, true);
+		GeneralGC worldGC = new TranslatedGC(cgc, offX, offY, zoom, true);
 		gcConfig.reset(worldGC);
 		zoomedRenderersCorrectOrder.forEach(r -> r.render(worldGC));
 		worldGC.disposeThisLayer();

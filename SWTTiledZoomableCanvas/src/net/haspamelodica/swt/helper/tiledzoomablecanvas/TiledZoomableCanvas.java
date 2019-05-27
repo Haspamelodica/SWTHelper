@@ -158,7 +158,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 
 		if(DEBUG)
 		{
-			GeneralGC worldGC = new TranslatedGC(gc, zoom, offX, offY, true);
+			GeneralGC worldGC = new TranslatedGC(gc, offX, offY, zoom, true);
 			worldGC.disposeThisLayer();
 			drawAllTileOutlines(worldGC);
 		}
@@ -300,7 +300,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 			{
 				GeneralGC untranslatedGC = tileRedrawCacheImageGC;
 				ClippingGC cgc = new ClippingGC(untranslatedGC, 0, 0, TILE_WIDTH, TILE_WIDTH);
-				TranslatedGC translatedGC = new TranslatedGC(cgc, toRender);
+				TranslatedGC translatedGC = new TranslatedGC(cgc, toRender.x, toRender.y, TILE_WIDTH / toRender.w, false);
 				defaultGCValues.reset(translatedGC);
 
 				untranslatedGC.fillRectangle(0, 0, TILE_WIDTH, TILE_WIDTH);
