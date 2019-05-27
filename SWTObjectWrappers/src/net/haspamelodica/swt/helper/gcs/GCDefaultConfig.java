@@ -9,7 +9,7 @@ import net.haspamelodica.swt.helper.swtobjectwrappers.Rectangle;
 
 public class GCDefaultConfig
 {
-	private final boolean	gcDefaultAdvanced;
+	//private final boolean	gcDefaultAdvanced;
 	private final Color		gcDefaultBackground;
 	private final int		gcDefaultFillRule;
 	private final Font		gcDefaultFont;
@@ -30,7 +30,7 @@ public class GCDefaultConfig
 	}
 	private GCDefaultConfig(GeneralGC gc, boolean disposeAfterwards)
 	{
-		gcDefaultAdvanced = gc.getAdvanced();
+		//gcDefaultAdvanced = gc.getAdvanced();
 		gcDefaultBackground = gc.getBackground();
 		gcDefaultFillRule = gc.getFillRule();
 		gcDefaultFont = gc.getFont();
@@ -46,7 +46,7 @@ public class GCDefaultConfig
 	@SuppressWarnings("deprecation")
 	public void reset(GeneralGC gc)
 	{
-		gc.setAdvanced(gcDefaultAdvanced);
+		//gc.setAdvanced(gcDefaultAdvanced);//don't reset advanced mode
 		gc.setAlpha(255);
 		gc.setAntialias(SWT.DEFAULT);
 		gc.setBackground(gcDefaultBackground);
