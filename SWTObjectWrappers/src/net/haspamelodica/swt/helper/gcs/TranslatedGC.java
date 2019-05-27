@@ -21,7 +21,7 @@ import net.haspamelodica.swt.helper.swtobjectwrappers.Rectangle;
 public class TranslatedGC implements GeneralGC
 {
 	private final GeneralGC	gc;
-	private final double	z, imgOffX, imgOffY;
+	private final double	imgOffX, imgOffY, zoom;
 
 	public TranslatedGC(GeneralGC gc, ZoomedRegion tilePos)
 	{
@@ -30,7 +30,7 @@ public class TranslatedGC implements GeneralGC
 	public TranslatedGC(GeneralGC gc, double z, double x, double y, boolean invertOffset)
 	{
 		this.gc = gc;
-		this.z = z;
+		this.zoom = z;
 		if(invertOffset)
 		{
 			this.imgOffX = -x;
@@ -52,19 +52,19 @@ public class TranslatedGC implements GeneralGC
 
 	private double s(double s)
 	{
-		return s * z;
+		return s * zoom;
 	}
 	private double si(double s)
 	{
-		return s / z;
+		return s / zoom;
 	}
 	private double sx(double x)
 	{
-		return x * z - imgOffX;
+		return x * zoom - imgOffX;
 	}
 	private double sy(double y)
 	{
-		return y * z - imgOffY;
+		return y * zoom - imgOffY;
 	}
 
 	// TODO implement more methods!
@@ -107,7 +107,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void drawPath(Path path)
 	{
-		gc.drawPath(path.translate(imgOffX, imgOffY, z));
+		gc.drawPath(path.translate(imgOffX, imgOffY, zoom));
 	}
 	public void drawPoint(double x, double y)
 	{
@@ -139,7 +139,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void drawRectangle(Rectangle rect)
 	{
-		gc.drawRectangle(rect.translate(imgOffX, imgOffY, z));
+		gc.drawRectangle(rect.translate(imgOffX, imgOffY, zoom));
 	}
 	public void drawRoundRectangle(double x, double y, double width, double height, double arcWidth, double arcHeight)
 	{
@@ -179,7 +179,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void fillPath(Path path)
 	{
-		gc.fillPath(path.translate(imgOffX, imgOffY, z));
+		gc.fillPath(path.translate(imgOffX, imgOffY, zoom));
 	}
 	public void fillPolygon(double[] pointArray)
 	{
@@ -243,7 +243,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public Font getFont()
 	{
-		return gc.getFont().unscale(z);
+		return gc.getFont().unscale(zoom);
 	}
 	public FontMetrics getFontMetrics()
 	{
@@ -344,7 +344,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void setClipping(Path path)
 	{
-		gc.setClipping(path.translate(imgOffX, imgOffY, z));
+		gc.setClipping(path.translate(imgOffX, imgOffY, zoom));
 	}
 	public void setClipping(Rectangle rect)
 	{
@@ -363,7 +363,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void setFont(Font font)
 	{
-		gc.setFont(font.scale(z));
+		gc.setFont(font.scale(zoom));
 	}
 	public void setForeground(Color color)
 	{
