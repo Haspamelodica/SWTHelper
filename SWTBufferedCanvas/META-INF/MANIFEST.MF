@@ -7,3 +7,4 @@ Export-Package: net.haspamelodica.swt.helper.buffered
 Require-Bundle: org.eclipse.swt;bundle-version="3.110.0",
  SWTObjectWrappers;bundle-version="1.0.0";visibility:=reexport
 Automatic-Module-Name: SWTBufferedCanvas
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
