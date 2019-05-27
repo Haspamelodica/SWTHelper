@@ -11,7 +11,7 @@ import net.haspamelodica.swt.helper.gcs.TranslatedGC;
 public class ImageRegion
 {
 	private final Image		image;
-	private final double	xOff, yOff, w, h;
+	private final double	xOff, yOff;
 	private final GeneralGC	translatedGC;
 	private final GeneralGC	toDispose1, toDispose2;
 
@@ -20,8 +20,6 @@ public class ImageRegion
 		this.image = image;
 		this.xOff = x;
 		this.yOff = y;
-		this.w = w;
-		this.h = h;
 		toDispose1 = new SWTGC(gc);
 		toDispose2 = new ClippingGC(toDispose1, x, y, w, h);
 		this.translatedGC = new TranslatedGC(toDispose2, x, y);
@@ -29,10 +27,9 @@ public class ImageRegion
 
 	public void drawTo(GeneralGC gc, double srcX, double srcY, double srcWidth, double srcHeight, double destX, double destY, double destWidth, double destHeight)
 	{
-		ClippingGC clippingGC = new ClippingGC(gc, xOff, yOff, w, h);
-		clippingGC.drawImage(image, srcX + xOff, srcY + yOff,
-				srcWidth, srcHeight, destX, destY, destWidth, destHeight);
-		clippingGC.disposeThisLayer();
+		gc.drawImage(image,	
+				srcX + xOff, srcY + yOff, srcWidth, srcHeight,
+				destX, destY, destWidth, destHeight);
 	}
 	public GeneralGC getGC()
 	{
