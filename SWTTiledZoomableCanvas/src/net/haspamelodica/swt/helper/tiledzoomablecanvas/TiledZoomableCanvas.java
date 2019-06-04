@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Shell;
 import net.haspamelodica.swt.helper.ClippingHelper;
 import net.haspamelodica.swt.helper.ClippingHelper.RectangleClippingResult;
 import net.haspamelodica.swt.helper.ImageRegion;
-import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
 import net.haspamelodica.swt.helper.gcs.ClippingGC;
 import net.haspamelodica.swt.helper.gcs.GCConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
@@ -460,7 +459,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		imgShell.setLayout(layout);
-		Canvas drawImg = new BufferedCanvas(imgShell, SWT.NONE);
+		Canvas drawImg = new Canvas(imgShell, SWT.NONE);
 		drawImg.setLayoutData(new GridData(TILES_PER_IMAGE_SIDE * TILE_WIDTH, TILES_PER_IMAGE_SIDE * TILE_WIDTH));
 		drawImg.addPaintListener(e -> e.gc.drawImage(img, 0, 0));
 		addPaintListener(e -> drawImg.redraw());

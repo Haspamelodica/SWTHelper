@@ -2,13 +2,14 @@ package net.haspamelodica.swt.helper.zoomablecanvas;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
-import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
 import net.haspamelodica.swt.helper.gcs.ClippingGC;
 import net.haspamelodica.swt.helper.gcs.GCConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
@@ -16,7 +17,7 @@ import net.haspamelodica.swt.helper.gcs.SWTGC;
 import net.haspamelodica.swt.helper.gcs.TranslatedGC;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Point;
 
-public class ZoomableCanvas extends BufferedCanvas
+public class ZoomableCanvas extends Canvas
 {
 	private final List<ZoomedRenderer> zoomedRenderersCorrectOrder;
 
@@ -25,9 +26,11 @@ public class ZoomableCanvas extends BufferedCanvas
 	protected double	offX, offY, zoom = 1;
 	protected int		gW, gH;
 
+	private final AtomicBoolean redrawQueued;
+
 	public ZoomableCanvas(Composite parent, int style)
 	{
-		super(parent, style);
+		super(parent, style | SWT.DOUBLE_BUFFERED);
 
 		GC gc = new GC(this);
 		gc.dispose();
@@ -36,11 +39,14 @@ public class ZoomableCanvas extends BufferedCanvas
 
 		transformListeners = new ArrayList<>();
 
+		redrawQueued = new AtomicBoolean(false);
+
 		addListener(SWT.Resize, e -> updateSize());
 		addPaintListener(this::render);
 	}
 	private void render(PaintEvent e)
 	{
+		redrawQueued.set(false);
 		GeneralGC gc = new SWTGC(e.gc);
 		GCConfig gcConfig = new GCConfig(gc);
 		GeneralGC cgc = new ClippingGC(gc, 0, 0, gW, gH);
@@ -121,7 +127,8 @@ public class ZoomableCanvas extends BufferedCanvas
 	public void commitTransform()
 	{
 		transformListeners.forEach(l -> l.transformChanged(offX, offY, zoom));
-		redrawThreadsafe();
+		//		redrawThreadsafe();
+		getDisplay().asyncExec(this::redraw);
 	}
 	private double clampToNormalValues(double d, double nanReplacement)
 	{
@@ -132,6 +139,28 @@ public class ZoomableCanvas extends BufferedCanvas
 		if(d > Double.MAX_VALUE)
 			d = Double.MAX_VALUE;
 		return d;
+	}
+	public void redrawThreadsafe()
+	{
+		redrawThreadsafe(false);
+	}
+	public void redrawThreadsafe(boolean sync)
+	{
+		if(redrawQueued.compareAndSet(false, true))
+			if(sync)
+				getDisplay().syncExec(this::forceRedraw);
+			else
+				getDisplay().asyncExec(this::forceRedraw);
+	}
+	@Override
+	public void redraw()
+	{
+		if(redrawQueued.compareAndSet(false, true) && !isDisposed())
+			forceRedraw();
+	}
+	private void forceRedraw()
+	{
+		super.redraw();
 	}
 	public void addZoomedRenderer(ZoomedRenderer renderer)
 	{

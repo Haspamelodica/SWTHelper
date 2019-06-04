@@ -6,6 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Export-Package: net.haspamelodica.swt.helper.zoomablecanvas,
  net.haspamelodica.swt.helper.zoomablecanvas.helper
 Require-Bundle: org.eclipse.swt;bundle-version="3.110.0",
- SWTBufferedCanvas;bundle-version="1.0.0";visibility:=reexport
+ SWTObjectWrappers;bundle-version="1.0.0";visibility:=reexport
 Automatic-Module-Name: SWTZoomableCanvas
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

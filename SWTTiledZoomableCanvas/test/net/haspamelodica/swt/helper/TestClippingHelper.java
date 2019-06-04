@@ -10,7 +10,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 
 import net.haspamelodica.swt.helper.ClippingHelper.RectangleClippingResult;
-import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
 
 public class TestClippingHelper
 {
@@ -29,7 +28,7 @@ public class TestClippingHelper
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new GridLayout());
-		c = new BufferedCanvas(shell, SWT.BORDER);
+		c = new Canvas(shell, SWT.BORDER | SWT.DOUBLE_BUFFERED);
 		c.addPaintListener(e ->
 		{
 			c.redraw();
