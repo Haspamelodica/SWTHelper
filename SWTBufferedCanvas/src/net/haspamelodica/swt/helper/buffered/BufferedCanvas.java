@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import net.haspamelodica.swt.helper.gcs.GCDefaultConfig;
+import net.haspamelodica.swt.helper.gcs.GCConfig;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
 
 public class BufferedCanvas extends Canvas
@@ -44,7 +44,7 @@ public class BufferedCanvas extends Canvas
 		super.addListener(SWT.Paint, new UntypedBufferedPaintListener()
 		{
 			@Override
-			public void unbufferedPaintControl(Event e, GCDefaultConfig gcConfig)
+			public void unbufferedPaintControl(Event e, GCConfig gcConfig)
 			{
 				redrawQueued.set(false);
 

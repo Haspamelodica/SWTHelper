@@ -6,7 +6,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
-import net.haspamelodica.swt.helper.gcs.GCDefaultConfig;
+import net.haspamelodica.swt.helper.gcs.GCConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
 
@@ -27,7 +27,7 @@ public abstract class GenericBufferedPaintListener<E>
 	{
 		recreateBufferIfNecessary(width + x, height + y, display);
 		GC widgetGC = gc;
-		GCDefaultConfig gcConfig = new GCDefaultConfig(gc);
+		GCConfig gcConfig = new GCConfig(gc);
 		gcConfig.reset(bufferGeneralGC);
 		bufferGC.fillRectangle(x, y, width, height);
 		setGCInEvent.accept(event, bufferGC);
@@ -48,7 +48,7 @@ public abstract class GenericBufferedPaintListener<E>
 			bufH = h;
 		}
 	}
-	public abstract void unbufferedPaintControl(E event, GCDefaultConfig gcConfig);
+	public abstract void unbufferedPaintControl(E event, GCConfig gcConfig);
 	public void disposeBuffer()
 	{
 		bufferGeneralGC.disposeThisLayer();
@@ -56,12 +56,12 @@ public abstract class GenericBufferedPaintListener<E>
 		buffer.dispose();
 	}
 
-	public static <E> GenericBufferedPaintListener<E> create(BiConsumer<E, GC> setGCInEvent, BiConsumer<E, GCDefaultConfig> unbuffered)
+	public static <E> GenericBufferedPaintListener<E> create(BiConsumer<E, GC> setGCInEvent, BiConsumer<E, GCConfig> unbuffered)
 	{
 		return new GenericBufferedPaintListener<E>(setGCInEvent)
 		{
 			@Override
-			public void unbufferedPaintControl(E e, GCDefaultConfig gcConfig)
+			public void unbufferedPaintControl(E e, GCConfig gcConfig)
 			{
 				unbuffered.accept(e, gcConfig);
 			}

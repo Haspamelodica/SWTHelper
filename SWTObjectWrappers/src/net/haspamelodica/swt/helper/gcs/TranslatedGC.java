@@ -22,7 +22,7 @@ public class TranslatedGC implements GeneralGC
 	private final GeneralGC	gc;
 	private final double	imgOffX, imgOffY, zoom;
 
-	public TranslatedGC(GeneralGC gc, double x, double y, double zoom,  boolean invertOffset)
+	public TranslatedGC(GeneralGC gc, double x, double y, double zoom, boolean invertOffset)
 	{
 		this.gc = gc;
 		this.zoom = zoom;
@@ -42,7 +42,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public TranslatedGC(GeneralGC gc, double xOff, double yOff)
 	{
-		this(gc, xOff, yOff, 1,  true);
+		this(gc, xOff, yOff, 1, true);
 	}
 
 	private double s(double s)
@@ -214,7 +214,11 @@ public class TranslatedGC implements GeneralGC
 	}
 	public Pattern getBackgroundPattern()
 	{
-		throw new IllegalStateException("unimplemented");
+		Pattern patternUnscaled = gc.getBackgroundPattern();
+		if(patternUnscaled == null)
+			return null;
+		else
+			throw new IllegalStateException("unimplemented");
 	}
 	public double getCharWidth(char ch)
 	{
@@ -250,7 +254,11 @@ public class TranslatedGC implements GeneralGC
 	}
 	public Pattern getForegroundPattern()
 	{
-		throw new IllegalStateException("unimplemented");
+		Pattern patternUnscaled = gc.getForegroundPattern();
+		if(patternUnscaled == null)
+			return null;
+		else
+			throw new IllegalStateException("unimplemented");
 	}
 	public GCData getGCData()
 	{
@@ -290,7 +298,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public int getTextAntialias()
 	{
-		throw new IllegalStateException("unimplemented");
+		return gc.getTextAntialias();
 	}
 	public void getTransform(Transform transform)
 	{
@@ -326,12 +334,10 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void setBackgroundPattern(Pattern pattern)
 	{
-		if(pattern != null)
-		{
-			if(!pattern.equals(getBackgroundPattern()))
-				throw new IllegalStateException("unimplemented");
-		} else
+		if(pattern == null)
 			gc.setBackgroundPattern(null);
+		else if(!pattern.equals(getBackgroundPattern()))
+			throw new IllegalStateException("unimplemented");
 	}
 	public void setClipping(double x, double y, double width, double height)
 	{
@@ -366,12 +372,10 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void setForegroundPattern(Pattern pattern)
 	{
-		if(pattern != null)
-		{
-			if(!pattern.equals(getForegroundPattern()))
-				throw new IllegalStateException("unimplemented");
-		} else
+		if(pattern == null)
 			gc.setForegroundPattern(null);
+		else if(!pattern.equals(getForegroundPattern()))
+			throw new IllegalStateException("unimplemented");
 	}
 	public void setInterpolation(int interpolation)
 	{

@@ -24,9 +24,9 @@ import org.eclipse.swt.widgets.Shell;
 import net.haspamelodica.swt.helper.ClippingHelper;
 import net.haspamelodica.swt.helper.ClippingHelper.RectangleClippingResult;
 import net.haspamelodica.swt.helper.ImageRegion;
-	import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
+import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
 import net.haspamelodica.swt.helper.gcs.ClippingGC;
-import net.haspamelodica.swt.helper.gcs.GCDefaultConfig;
+import net.haspamelodica.swt.helper.gcs.GCConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
 import net.haspamelodica.swt.helper.gcs.TranslatedGC;
@@ -56,7 +56,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	private final Map<Rectangle, ImageRegion>	cachedTiles;
 	private final Set<Rectangle>				unmodifiableCachedTilePositions;
 	private final List<Rectangle>				cachedTilesSortedCache;
-	private GCDefaultConfig						defaultGCValues;
+	private GCConfig							defaultGCValues;
 
 	private final List<GeneralTileRenderer>							tileRenderersCorrectOrder;
 	private final Map<PixelBasedTileRenderer, GeneralTileRenderer>	pixelBasedTileRenderers;
@@ -125,7 +125,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 			}
 		}
 
-		defaultGCValues = new GCDefaultConfig(tilePool[0].getGC());
+		defaultGCValues = new GCConfig(tilePool[0].getGC());
 
 		tileRenderersCorrectOrder = new ArrayList<>();
 		pixelBasedTileRenderers = new HashMap<>();
@@ -169,7 +169,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	private void renderWorld(GeneralGC gc)
 	{
 		//if something (like BG color) changes, use this new "config" also for tiles getting drawn from now on
-		defaultGCValues = new GCDefaultConfig(gc);
+		defaultGCValues = new GCConfig(gc);
 		synchronized(cachedTiles)
 		{
 			cachedTilesSortedCache.addAll(unmodifiableCachedTilePositions);

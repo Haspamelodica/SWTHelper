@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import net.haspamelodica.swt.helper.buffered.BufferedCanvas;
 import net.haspamelodica.swt.helper.gcs.ClippingGC;
-import net.haspamelodica.swt.helper.gcs.GCDefaultConfig;
+import net.haspamelodica.swt.helper.gcs.GCConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
 import net.haspamelodica.swt.helper.gcs.TranslatedGC;
@@ -42,7 +42,7 @@ public class ZoomableCanvas extends BufferedCanvas
 	private void render(PaintEvent e)
 	{
 		GeneralGC gc = new SWTGC(e.gc);
-		GCDefaultConfig gcConfig = new GCDefaultConfig(gc);
+		GCConfig gcConfig = new GCConfig(gc);
 		GeneralGC cgc = new ClippingGC(gc, 0, 0, gW, gH);
 		GeneralGC worldGC = new TranslatedGC(cgc, offX, offY, zoom, true);
 		gcConfig.reset(worldGC);
