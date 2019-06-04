@@ -11,11 +11,11 @@ import net.haspamelodica.swt.helper.gcs.TranslatedGC;
 public class ImageRegion
 {
 	private final Image		image;
-	private final double	xOff, yOff;
+	private final int	xOff, yOff;
 	private final GeneralGC	translatedGC;
 	private final GeneralGC	toDispose1, toDispose2;
 
-	public ImageRegion(Image image, GC gc, double x, double y, double w, double h)
+	public ImageRegion(Image image, GC gc, int x, int y, double w, double h)
 	{
 		this.image = image;
 		this.xOff = x;
@@ -25,7 +25,7 @@ public class ImageRegion
 		this.translatedGC = new TranslatedGC(toDispose2, x, y);
 	}
 
-	public void drawTo(GeneralGC gc, double srcX, double srcY, double srcWidth, double srcHeight, double destX, double destY, double destWidth, double destHeight)
+	public void drawTo(GeneralGC gc, int srcX, int srcY, int srcWidth, int srcHeight, double destX, double destY, double destWidth, double destHeight)
 	{
 		gc.drawImage(image,	
 				srcX + xOff, srcY + yOff, srcWidth, srcHeight,

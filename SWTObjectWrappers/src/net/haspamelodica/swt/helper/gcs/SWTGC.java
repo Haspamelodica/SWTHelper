@@ -51,9 +51,9 @@ public class SWTGC implements GeneralGC
 	{
 		gc.drawImage(image, (int) x, (int) y);
 	}
-	public void drawImage(Image image, double srcX, double srcY, double srcWidth, double srcHeight, double destX, double destY, double destWidth, double destHeight)
+	public void drawImage(Image image, int srcX, int srcY, int srcWidth, int srcHeight, double destX, double destY, double destWidth, double destHeight)
 	{
-		gc.drawImage(image, (int) srcX, (int) srcY, (int) Math.ceil(srcWidth), (int) Math.ceil(srcHeight), (int) destX, (int) destY, (int) Math.ceil(destWidth), (int) Math.ceil(destHeight));
+		gc.drawImage(image, srcX, srcY, srcWidth, srcHeight, (int) destX, (int) destY, (int) Math.ceil(destWidth), (int) Math.ceil(destHeight));
 	}
 	public void drawLine(double x1, double y1, double x2, double y2)
 	{

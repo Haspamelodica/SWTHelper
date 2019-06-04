@@ -185,7 +185,7 @@ public interface GeneralGC
 	 *                                         <li>ERROR_NO_HANDLES - if no handles are available to perform the operation</li>
 	 *                                         </ul>
 	 */
-	public void drawImage(Image image, double srcX, double srcY, double srcWidth, double srcHeight, double destX, double destY, double destWidth, double destHeight);
+	public void drawImage(Image image, int srcX, int srcY, int srcWidth, int srcHeight, double destX, double destY, double destWidth, double destHeight);
 	/**
 	 * Draws a line, using the foreground color, between the points
 	 * (<code>x1</code>, <code>y1</code>) and (<code>x2</code>, <code>y2</code>).

@@ -85,10 +85,10 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void drawImage(Image image, double x, double y)
 	{
-		Rectangle bounds = new Rectangle(image.getBounds());
+		org.eclipse.swt.graphics.Rectangle bounds = image.getBounds();
 		gc.drawImage(image, bounds.x, bounds.y, bounds.width, bounds.height, sx(x), sy(y), s(bounds.width), s(bounds.height));
 	}
-	public void drawImage(Image image, double srcX, double srcY, double srcWidth, double srcHeight, double destX, double destY, double destWidth, double destHeight)
+	public void drawImage(Image image, int srcX, int srcY, int srcWidth, int srcHeight, double destX, double destY, double destWidth, double destHeight)
 	{
 		gc.drawImage(image, srcX, srcY, srcWidth, srcHeight, sx(destX), sy(destY), s(destWidth), s(destHeight));
 	}
