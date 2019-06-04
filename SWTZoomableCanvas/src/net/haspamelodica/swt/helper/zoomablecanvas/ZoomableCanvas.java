@@ -57,6 +57,7 @@ public class ZoomableCanvas extends Canvas
 		cgc.disposeThisLayer();
 		gcConfig.reset(gc);
 		gc.disposeThisLayer();
+		e.gc.setFont(null);
 	}
 	private void updateSize()
 	{
