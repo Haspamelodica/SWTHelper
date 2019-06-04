@@ -32,24 +32,8 @@ public class ClippingGC implements GeneralGC
 		this.maxDstY2 = y + h;
 	}
 
-	public void drawLine(double x1, double y1, double x2, double y2)
-	{
-		LineClipResult c = ClippingHelper.clipLineRectangleCohenSutherland(x1, y1, x2, y2, minDstX1, minDstY1, maxDstX2, maxDstY2);
-		if(c != null)
-			gc.drawLine(c.x1, c.y1, c.x2, c.y2);
-	}
-	public void fillRectangle(double x, double y, double width, double height)
-	{
-		RectangleClippingResult c = ClippingHelper.clipRectangleRectangleSrcAsInts(x, y, x + width, y + height,
-				x, y, x + width, y + height,
-				minDstX1, minDstY1, maxDstX2, maxDstY2);
-		if(c != null)
-			gc.fillRectangle(c.dstX1, c.dstY1, c.dstX2 - c.dstX1, c.dstY2 - c.dstY1);
-	}
-
 	// TODO implement more methods!
 
-	//forwarded; not clipped
 	public void copyArea(Image image, double x, double y)
 	{
 		gc.copyArea(image, x, y);
@@ -85,6 +69,12 @@ public class ClippingGC implements GeneralGC
 					c.srcX1, c.srcY1, c.srcX2 - c.srcX1, c.srcY2 - c.srcY1,
 					c.dstX1, c.dstY1, c.dstX2 - c.dstX1, c.dstY2 - c.dstY1);
 	}
+	public void drawLine(double x1, double y1, double x2, double y2)
+	{
+		LineClipResult c = ClippingHelper.clipLineRectangleCohenSutherland(x1, y1, x2, y2, minDstX1, minDstY1, maxDstX2, maxDstY2);
+		if(c != null)
+			gc.drawLine(c.x1, c.y1, c.x2, c.y2);
+	}
 	public void drawOval(double x, double y, double width, double height)
 	{
 		gc.drawOval(x, y, width, height);
@@ -107,11 +97,15 @@ public class ClippingGC implements GeneralGC
 	}
 	public void drawRectangle(double x, double y, double width, double height)
 	{
-		gc.drawRectangle(x, y, width, height);
+		//TODO clip better
+		double lineWidth = getLineWidth();
+		if(x >= minDstX1 + lineWidth || y >= minDstY1 + lineWidth || x + width <= maxDstX2 - lineWidth || y + height <= maxDstY2 - lineWidth)
+			gc.drawRectangle(x, y, width, height);
 	}
 	public void drawRectangle(Rectangle rect)
 	{
-		gc.drawRectangle(rect);
+		//avoid duplication of clipping code
+		drawRectangle(rect.x, rect.y, rect.width, rect.height);
 	}
 	public void drawRoundRectangle(double x, double y, double width, double height, double arcWidth, double arcHeight)
 	{
@@ -156,6 +150,25 @@ public class ClippingGC implements GeneralGC
 	public void fillPolygon(double[] pointArray)
 	{
 		gc.fillPolygon(pointArray);
+	}
+	public void fillRectangle(double x, double y, double width, double height)
+	{
+		if(x < minDstX1)
+		{
+			width -= minDstX1 - x;
+			x = minDstX1;
+		}
+		if(y < minDstY1)
+		{
+			height -= minDstY1 - y;
+			y = minDstY1;
+		}
+		if(width > maxDstX2 - x)
+			width = maxDstX2 - x;
+		if(height > maxDstY2 - y)
+			height = maxDstY2 - y;
+		if(width > 0 && height > 0)
+			gc.fillRectangle(x, y, width, height);
 	}
 	public void fillRectangle(Rectangle rect)
 	{
