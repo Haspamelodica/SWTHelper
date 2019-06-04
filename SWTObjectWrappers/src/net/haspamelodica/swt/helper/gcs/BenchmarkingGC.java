@@ -594,6 +594,7 @@ public class BenchmarkingGC implements GeneralGC
 		gc.setLineWidth(lineWidth);
 		methodStop("setLineWidth");
 	}
+	@SuppressWarnings("deprecation")
 	@Override
 	public void setXORMode(boolean xor)
 	{
