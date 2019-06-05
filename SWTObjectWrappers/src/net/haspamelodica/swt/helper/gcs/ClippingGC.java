@@ -99,7 +99,7 @@ public class ClippingGC implements GeneralGC
 	{
 		//TODO clip better
 		double lineWidth = getLineWidth();
-		if(x >= minDstX1 + lineWidth || y >= minDstY1 + lineWidth || x + width <= maxDstX2 - lineWidth || y + height <= maxDstY2 - lineWidth)
+		if(x >= minDstX1 - lineWidth / 2 || y >= minDstY1 - lineWidth / 2 || x + width <= maxDstX2 + lineWidth / 2 || y + height <= maxDstY2 + lineWidth / 2)
 			gc.drawRectangle(x, y, width, height);
 	}
 	public void drawRectangle(Rectangle rect)
