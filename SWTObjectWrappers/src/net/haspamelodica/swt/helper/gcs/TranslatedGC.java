@@ -341,7 +341,7 @@ public class TranslatedGC implements GeneralGC
 	}
 	public void setClipping(double x, double y, double width, double height)
 	{
-		throw new IllegalStateException("unimplemented");
+		gc.setClipping(sx(x), sy(y), s(width), s(height));
 	}
 	public void setClipping(Path path)
 	{
