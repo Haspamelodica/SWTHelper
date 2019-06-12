@@ -22,18 +22,27 @@ import org.eclipse.swt.widgets.Text;
 
 public abstract class SWTSystemInOutApplication
 {
-	private StringBuilder	userInputBuffer	= new StringBuilder();
-	private StringBuilder	outputBuffer	= new StringBuilder();
-	private boolean			changed			= true;
+	private static final boolean	ECHO_SYSTEM_MESSAGES_TO_REAL_SYSERR	= false;
+	private static final boolean	ECHO_SYSOUT_TO_REAL_SYSOUT			= false;
+	private static final boolean	ECHO_SYSERR_TO_REAL_SYSERR			= false;
+	private static final boolean	ECHO_SYSIN_TO_REAL_SYSOUT			= false;
+
+	private ByteQueue	userInputBuffer	= new ByteQueue();
+	private ByteList	outputBuffer	= new ByteList();
+	private boolean		changed			= true;
 
 	private Display				display;
 	private StyledText			output;
 	private List<StyleRange>	ranges	= new ArrayList<StyleRange>();
-	private Color				userInputForegroundColor;
-	private Color				userInputBackgroundColor;
+	private Color				sysinForegroundColor;
+	private Color				sysinBackgroundColor;
+	private Color				syserrForegroundColor;
+	private Color				syserrBackgroundColor;
+	private Color				systemMessagesForegroundColor;
+	private Color				systemMessagesBackgroundColor;
 
-	@SuppressWarnings("unused")
 	private PrintStream	realSystemOut;
+	private PrintStream	realSystemErr;
 	@SuppressWarnings("unused")
 	private InputStream	realSystemIn;
 
@@ -43,19 +52,30 @@ public abstract class SWTSystemInOutApplication
 		setSysInAndOut();
 		new Thread(() ->
 		{
-			run();
-			System.exit(0);
+			try
+			{
+				run();
+				printSystemMessage("Application exited");
+			} catch(Throwable e)
+			{
+				printSystemMessage("Application crashed:");
+				e.printStackTrace();
+			}
 		}, "ApplicationThread").start();
 		runGUILoop(shell);
 		display.dispose();
 		System.exit(0);
 	}
-	public abstract void run();
+	public abstract void run() throws Throwable;
 	private Shell initGUI()
 	{
 		display = new Display();
-		userInputForegroundColor = display.getSystemColor(SWT.COLOR_GREEN);
-		userInputBackgroundColor = display.getSystemColor(SWT.COLOR_WHITE);
+		sysinForegroundColor = display.getSystemColor(SWT.COLOR_GREEN);
+		sysinBackgroundColor = display.getSystemColor(SWT.COLOR_WHITE);
+		syserrForegroundColor = display.getSystemColor(SWT.COLOR_RED);
+		syserrBackgroundColor = display.getSystemColor(SWT.COLOR_WHITE);
+		systemMessagesForegroundColor = display.getSystemColor(SWT.COLOR_BLUE);
+		systemMessagesBackgroundColor = display.getSystemColor(SWT.COLOR_WHITE);
 		Shell shell = new Shell(display);
 		shell.setLayout(new GridLayout());
 		createOutput(shell);
@@ -66,12 +86,8 @@ public abstract class SWTSystemInOutApplication
 	private void runGUILoop(Shell shell)
 	{
 		while(!shell.isDisposed())
-		{
 			if(!display.readAndDispatch())
-			{
 				display.sleep();
-			}
-		}
 	}
 	private void createOutput(Shell shell)
 	{
@@ -92,31 +108,40 @@ public abstract class SWTSystemInOutApplication
 			public void widgetDefaultSelected(SelectionEvent e)
 			{
 				String text = inputText.getText() + "\r\n";
-				userInputBuffer.append(text);
-				outputBuffer.append(text);
-				changed = true;
-				int start = output.getText().length();
-				int length = text.length();
-				ranges.add(new StyleRange(start, length, userInputForegroundColor, userInputBackgroundColor));
-				redrawOutputIfNeeded();
 				inputText.setText("");
+				byte[] bytes = text.getBytes();
+				userInputBuffer.offer(bytes);
+				synchronized(outputBuffer)
+				{
+					int start = outputBuffer.size();
+					outputBuffer.add(bytes);
+					ranges.add(new StyleRange(start, text.length(), sysinForegroundColor, sysinBackgroundColor));
+				}
+				changed = true;
+				redrawOutputIfNeeded();
 			}
 		});
 	}
 	private void setSysInAndOut()
 	{
-		saveRealSystemInOut();
+		saveRealSystemInErrOut();
 		setFakeSystemOut();
+		setFakeSystemErr();
 		setFakeSystemIn();
 	}
-	private void saveRealSystemInOut()
+	private void saveRealSystemInErrOut()
 	{
 		realSystemOut = System.out;
+		realSystemErr = System.err;
 		realSystemIn = System.in;
 	}
 	private void setFakeSystemOut()
 	{
 		System.setOut(createFakeSystemOut());
+	}
+	private void setFakeSystemErr()
+	{
+		System.setErr(createFakeSystemErr());
 	}
 	private void setFakeSystemIn()
 	{
@@ -129,13 +154,19 @@ public abstract class SWTSystemInOutApplication
 			@Override
 			public void write(int b) throws IOException
 			{
-				//				realSystemOut.write(b);
-				//				realSystemOut.flush();
-				outputBuffer.append((char) b);
-				changed = true;
-				execSWTSafe(() -> redrawOutputIfNeeded());
+				printSysoutByte(b);
 			}
-
+		});
+	}
+	private PrintStream createFakeSystemErr()
+	{
+		return new PrintStream(new OutputStream()
+		{
+			@Override
+			public void write(int b) throws IOException
+			{
+				printSyserrByte(b);
+			}
 		});
 	}
 	private InputStream createFakeSystemIn()
@@ -145,54 +176,125 @@ public abstract class SWTSystemInOutApplication
 			@Override
 			public int read() throws IOException
 			{
-				while(userInputBuffer.length() == 0)
-				{
-					sleep();
-				}
-				int retVal = userInputBuffer.charAt(0);
-				userInputBuffer.deleteCharAt(0);
-				//				realSystemOut.write(retVal);
-				//				realSystemOut.flush();
-				return retVal;
-			}
-			private void sleep()
-			{
-				try
-				{
-					Thread.sleep(1);
-				} catch(InterruptedException e)
-				{
-					e.printStackTrace();
-				}
+				return readSysinByte();
 			}
 			@Override
 			public int read(byte[] b, int off, int len) throws IOException
 			{
-				while(userInputBuffer.length() == 0)
-				{
-					sleep();
-				}
-				len = Math.min(len, userInputBuffer.length());
-				for(int i = 0; i < len; i ++)
-				{
-					b[i + off] = (byte) userInputBuffer.charAt(i);
-				}
-				userInputBuffer.delete(0, len);
-				return len;
+				return readSysinByteArr(b, off, len);
 			}
 		};
+	}
+	private void printSysoutByte(int b)
+	{
+		synchronized(outputBuffer)
+		{
+			if(ECHO_SYSOUT_TO_REAL_SYSOUT)
+			{
+				realSystemOut.write(b);
+				realSystemOut.flush();
+			}
+			outputBuffer.add((byte) b);
+		}
+		changed = true;
+		execSWTSafe(() -> redrawOutputIfNeeded());
+	}
+	private void printSyserrByte(int b)
+	{
+		synchronized(outputBuffer)
+		{
+			if(ECHO_SYSERR_TO_REAL_SYSERR)
+			{
+				realSystemErr.write(b);
+				realSystemErr.flush();
+			}
+			int start = outputBuffer.size();
+			outputBuffer.add((byte) b);
+			ranges.add(new StyleRange(start, 1, syserrForegroundColor, syserrBackgroundColor));
+		}
+		changed = true;
+		execSWTSafe(() -> redrawOutputIfNeeded());
+	}
+	private void printSystemMessage(String message)
+	{
+		message += "\r\n";
+		synchronized(outputBuffer)
+		{
+			if(ECHO_SYSTEM_MESSAGES_TO_REAL_SYSERR)
+			{
+				realSystemErr.print(message);
+				realSystemErr.flush();
+			}
+			int start = outputBuffer.size();
+			outputBuffer.add(message.getBytes());
+			ranges.add(new StyleRange(start, message.length(), systemMessagesForegroundColor, systemMessagesBackgroundColor));
+		}
+		changed = true;
+		execSWTSafe(() -> redrawOutputIfNeeded());
+	}
+	private int readSysinByte()
+	{
+		int retVal = -1;
+		do
+			try
+			{
+				retVal = userInputBuffer.pollBlocking() & 0xFF;
+			} catch(InterruptedException e)
+			{}
+		while(retVal == -1);
+		if(ECHO_SYSIN_TO_REAL_SYSOUT)
+		{
+			realSystemOut.write(retVal);
+			realSystemOut.flush();
+		}
+		return retVal;
+	}
+	private int readSysinByteArr(byte[] b, int off, int len)
+	{
+		for(;;)
+			try
+			{
+				len = userInputBuffer.pollSemiBlocking(b, off, len);
+				if(ECHO_SYSIN_TO_REAL_SYSOUT)
+				{
+					realSystemOut.write(b, off, len);
+					realSystemOut.flush();
+				}
+				return len;
+			} catch(InterruptedException e)
+			{}
 	}
 	private void redrawOutputIfNeeded()
 	{
 		if(changed)
 		{
 			changed = false;
-			output.setText(outputBuffer.toString());
-			output.setStyleRanges(ranges.toArray(new StyleRange[0]));
+			synchronized(outputBuffer)
+			{
+				output.setText(new String(outputBuffer.array(), 0, outputBuffer.size()));
+				output.setStyleRanges(ranges.toArray(new StyleRange[0]));
+			}
 		}
 	}
 	private void execSWTSafe(Runnable r)
 	{
 		display.asyncExec(r);
+	}
+
+	public static <X extends Throwable> void run(MainMethod<X> main, String... args)
+	{
+		new SWTSystemInOutApplication()
+		{
+			@Override
+			public void run() throws Throwable
+			{
+				main.main(args);
+			}
+		}.startApplication();
+	}
+
+	public static interface MainMethod<X extends Throwable>
+	{
+		public void main(String... args) throws X;
 	}
 }
