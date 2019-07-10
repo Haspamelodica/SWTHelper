@@ -187,19 +187,19 @@ public class ZoomableCanvas extends Canvas
 	{
 		public void transformChanged(double offX, double offY, double zoom);
 	}
-	public Point displayToWorldCoords(Point displayCoords)
+	public Point canvasToWorldCoords(Point canvasCoords)
 	{
-		return displayToWorldCoords(displayCoords.x, displayCoords.y);
+		return canvasToWorldCoords(canvasCoords.x, canvasCoords.y);
 	}
-	public Point displayToWorldCoords(double x, double y)
+	public Point canvasToWorldCoords(double x, double y)
 	{
 		return new Point((x - offX) / zoom, (y - offY) / zoom);
 	}
-	public Point worldToDisplayCoords(Point worldCoords)
+	public Point worldToCanvasCoords(Point worldCoords)
 	{
-		return displayToWorldCoords(worldCoords.x, worldCoords.y);
+		return worldToCanvasCoords(worldCoords.x, worldCoords.y);
 	}
-	public Point worldToDisplayCoords(double x, double y)
+	public Point worldToCanvasCoords(double x, double y)
 	{
 		return new Point(x * zoom + offX, y * zoom + offY);
 	}
