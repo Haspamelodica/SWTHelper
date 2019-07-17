@@ -73,7 +73,16 @@ public class ClippingHelper
 	private static final int			OUT_LEFT	= 2;
 	private static final int			OUT_TOP		= 4;
 	private static final int			OUT_BOTTOM	= 8;
-	public static LineClipResult clipLineRectangleCohenSutherland(double x1, double y1, double x2, double y2, double xr, double yt, double xl, double yb)
+	public static LineClipResult clipLineRectangleCohenSutherland(double x1, double y1, double x2, double y2, double xr, double yt, double xl, double yb, double lineWidth)
+	{
+		//TODO
+		xr -= lineWidth / 2;
+		yt -= lineWidth / 2;
+		xl += lineWidth / 2;
+		yb += lineWidth / 2;
+		return clipRectangleLineCohenSuterland(x1, y1, x2, y2, xr, yt, xl, yb);
+	}
+	private static LineClipResult clipRectangleLineCohenSuterland(double x1, double y1, double x2, double y2, double xr, double yt, double xl, double yb)
 	{
 		for(;;)
 		{

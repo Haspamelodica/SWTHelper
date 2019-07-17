@@ -71,7 +71,7 @@ public class ClippingGC implements GeneralGC
 	}
 	public void drawLine(double x1, double y1, double x2, double y2)
 	{
-		LineClipResult c = ClippingHelper.clipLineRectangleCohenSutherland(x1, y1, x2, y2, minDstX1, minDstY1, maxDstX2, maxDstY2);
+		LineClipResult c = ClippingHelper.clipLineRectangleCohenSutherland(x1, y1, x2, y2, minDstX1, minDstY1, maxDstX2, maxDstY2, getLineWidth());
 		if(c != null)
 			gc.drawLine(c.x1, c.y1, c.x2, c.y2);
 	}
