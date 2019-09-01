@@ -1,7 +1,5 @@
 package net.haspamelodica.swt.helper.gcs;
 
-import java.util.Arrays;
-
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -300,9 +298,12 @@ public class TranslatedGC implements GeneralGC
 	{
 		return gc.getTextAntialias();
 	}
+	@Override
 	public void getTransform(Transform transform)
 	{
-		throw new IllegalStateException("unimplemented");
+		gc.getTransform(transform);
+		transform.translate((float) -imgOffX, (float) -imgOffY);
+		transform.scale((float) zoom, (float) zoom);
 	}
 	public boolean getXORMode()
 	{
@@ -420,21 +421,20 @@ public class TranslatedGC implements GeneralGC
 	{
 		gc.setTextAntialias(antialias);
 	}
+	@Override
 	public void setTransform(Transform transform)
 	{
-		if(transform != null)
-		{
-			Transform transformBuffer = new Transform(getDevice());
-			getTransform(transformBuffer);
-			float[] elementBuffer1 = new float[6];
-			transform.getElements(elementBuffer1);
-			float[] elementBuffer2 = new float[6];
-			transformBuffer.getElements(elementBuffer2);
-			transformBuffer.dispose();
-			if(!Arrays.equals(elementBuffer1, elementBuffer2))
-				throw new IllegalStateException("unimplemented");
-		} else
+		if(transform == null)
 			gc.setTransform(null);
+		else
+		{
+			float[] floatsBuf = new float[6];
+			transform.getElements(floatsBuf);
+			transform.scale((float) (1 / zoom), (float) (1 / zoom));
+			transform.translate((float) imgOffX, (float) imgOffY);
+			gc.setTransform(transform);
+			transform.setElements(floatsBuf[0], floatsBuf[1], floatsBuf[2], floatsBuf[3], floatsBuf[4], floatsBuf[5]);
+		}
 	}
 	public Point stringExtent(String string)
 	{
