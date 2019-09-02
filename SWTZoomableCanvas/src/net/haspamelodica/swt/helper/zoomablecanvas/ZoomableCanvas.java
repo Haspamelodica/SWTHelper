@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
@@ -14,6 +13,7 @@ import net.haspamelodica.swt.helper.gcs.ClippingGC;
 import net.haspamelodica.swt.helper.gcs.GCConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
+import net.haspamelodica.swt.helper.gcs.TextImprovingGC;
 import net.haspamelodica.swt.helper.gcs.TranslatedGC;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Point;
 
@@ -23,6 +23,7 @@ public class ZoomableCanvas extends Canvas
 
 	private final List<TransformListener> transformListeners;
 
+	private boolean		improveText;
 	protected double	offX, offY, zoom = 1;
 	protected int		gW, gH;
 
@@ -30,31 +31,42 @@ public class ZoomableCanvas extends Canvas
 
 	public ZoomableCanvas(Composite parent, int style)
 	{
+		this(parent, style, false);
+	}
+	public ZoomableCanvas(Composite parent, int style, boolean improveText)
+	{
 		super(parent, style | SWT.DOUBLE_BUFFERED);
-
-		GC gc = new GC(this);
-		gc.dispose();
 
 		zoomedRenderersCorrectOrder = new ArrayList<>();
 
 		transformListeners = new ArrayList<>();
 
+		this.improveText = improveText;
+
 		redrawQueued = new AtomicBoolean(false);
 
 		addListener(SWT.Resize, e -> updateSize());
 		addPaintListener(this::render);
+		addListener(SWT.KeyDown, e ->
+		{
+			zoom *= .99;
+			redraw();
+		});
 	}
 	private void render(PaintEvent e)
 	{
 		redrawQueued.set(false);
 		GeneralGC gc = new SWTGC(e.gc);
 		GCConfig gcConfig = new GCConfig(gc);
-		GeneralGC cgc = new ClippingGC(gc, 0, 0, gW, gH);
+		GeneralGC igc = improveText ? new TextImprovingGC(gc) : null;
+		GeneralGC cgc = new ClippingGC(improveText ? igc : gc, 0, 0, gW, gH);
 		GeneralGC worldGC = new TranslatedGC(cgc, offX, offY, zoom, true);
 		gcConfig.reset(worldGC);
 		zoomedRenderersCorrectOrder.forEach(r -> r.render(worldGC));
 		worldGC.disposeThisLayer();
 		cgc.disposeThisLayer();
+		if(improveText)
+			igc.disposeThisLayer();
 		gcConfig.reset(gc);
 		gc.disposeThisLayer();
 		e.gc.setFont(null);
