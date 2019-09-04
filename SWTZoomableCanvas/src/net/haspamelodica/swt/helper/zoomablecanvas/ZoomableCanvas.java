@@ -47,11 +47,6 @@ public class ZoomableCanvas extends Canvas
 
 		addListener(SWT.Resize, e -> updateSize());
 		addPaintListener(this::render);
-		addListener(SWT.KeyDown, e ->
-		{
-			zoom *= .99;
-			redraw();
-		});
 	}
 	private void render(PaintEvent e)
 	{
