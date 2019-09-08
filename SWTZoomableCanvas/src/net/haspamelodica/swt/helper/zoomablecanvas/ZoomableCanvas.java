@@ -168,7 +168,8 @@ public class ZoomableCanvas extends Canvas
 	}
 	private void forceRedraw()
 	{
-		super.redraw();
+		if(!isDisposed())
+			super.redraw();
 	}
 	public void addZoomedRenderer(ZoomedRenderer renderer)
 	{
