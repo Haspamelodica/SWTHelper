@@ -135,6 +135,17 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 		addListener(SWT.Resize, e -> updateSize());
 		addPaintListener(this::renderWorldBorder);
 		addZoomedRenderer(this::renderWorld);
+		addDisposeListener(e ->
+		{
+			tileRedrawCacheImageGC.disposeThisLayer();
+			toDispose.forEach(Resource::dispose);
+			synchronized(cachedTiles)
+			{
+				cachedTiles.values().forEach(ImageRegion::dispose);
+				for(ImageRegion ir : tilePool)
+					ir.dispose();
+			}
+		});
 		if(DEBUG)
 			addListener(SWT.KeyDown, e ->
 			{
@@ -372,19 +383,6 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 		}
 		updateTileCache();
 		redrawThreadsafe();
-	}
-	@Override
-	public void dispose()
-	{
-		tileRedrawCacheImageGC.disposeThisLayer();
-		toDispose.forEach(Resource::dispose);
-		synchronized(cachedTiles)
-		{
-			cachedTiles.values().forEach(ImageRegion::dispose);
-			for(ImageRegion ir : tilePool)
-				ir.dispose();
-		}
-		super.dispose();
 	}
 	private static interface GeneralTileRenderer
 	{
