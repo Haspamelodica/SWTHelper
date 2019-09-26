@@ -1,5 +1,6 @@
 package net.haspamelodica.swt.helper.input;
 
+import java.text.DecimalFormatSymbols;
 import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
@@ -10,12 +11,13 @@ public class NumberInput<N extends Number> extends Input<N>
 	private String				unitWithLeadingSpace, unit;
 	private Function<String, N>	stringToNMapper;
 	private Function<N, String>	nTostringMapper;
+	private int					precision	= -1;
 
-	public NumberInput(Composite parent)
+	public NumberInput(Composite parent, boolean isNonIntegral)
 	{
-		this(parent, SWT.NONE);
+		this(parent, SWT.NONE, isNonIntegral);
 	}
-	public NumberInput(Composite parent, int style)
+	public NumberInput(Composite parent, int style, boolean isNonIntegral)
 	{
 		super(parent, style);
 		super.setStringToTMapper(s ->
@@ -33,7 +35,8 @@ public class NumberInput<N extends Number> extends Input<N>
 			}
 		});
 		super.setTToStringMapper(n -> nTostringMapper.apply(n) + (unit == null ? "" : unitWithLeadingSpace));
-		nTostringMapper = Number::toString;
+		char decimalSeparator = DecimalFormatSymbols.getInstance().getDecimalSeparator();
+		nTostringMapper = n -> precision == -1 ? String.valueOf(n).replace('.', decimalSeparator) : String.format(isNonIntegral ? "%." + precision + "f" : "%d", n);
 		setErrorContent("NaN");
 	}
 	public Input<N> setStringToTMapper(Function<String, N> stringToN)
@@ -53,6 +56,17 @@ public class NumberInput<N extends Number> extends Input<N>
 	public Function<N, String> getTToStringMapper()
 	{
 		return nTostringMapper;
+	}
+	/**
+	 * A value of -1 means unbounded precision and use E-notation.
+	 */
+	public void setPrecision(int precision)
+	{
+		this.precision = precision;
+	}
+	public int getPrecision()
+	{
+		return precision;
 	}
 	public NumberInput<N> setUnit(String unit)
 	{

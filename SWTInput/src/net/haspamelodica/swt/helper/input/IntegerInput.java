@@ -11,7 +11,7 @@ public class IntegerInput extends NumberInput<Integer>
 	}
 	public IntegerInput(Composite parent, int style)
 	{
-		super(parent, style);
+		super(parent, style,false);
 		setStringToTMapper(Integer::valueOf);
 	}
 }
