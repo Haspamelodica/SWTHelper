@@ -146,6 +146,13 @@ public class Input<T> extends Composite
 	{
 		return currentValue;
 	}
+	@Override
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+		text.setEnabled(enabled);
+		label.setEnabled(enabled);
+	}
 	private void updateTextAndCallListeners(boolean manualConfirm)
 	{
 		String newInput = text.getText();
