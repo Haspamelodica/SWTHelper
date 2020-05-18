@@ -9,24 +9,29 @@ import org.eclipse.swt.graphics.LineAttributes;
 import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.graphics.Region;
 import org.eclipse.swt.graphics.Transform;
+
 import net.haspamelodica.swt.helper.swtobjectwrappers.Font;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Path;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Point;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Rectangle;
 
-public class TextImprovingGC implements GeneralGC
+// TODO improve all rendering operations where lineDash is used, not just drawLine and drawPolyline
+public class ScalingImprovingGC implements GeneralGC
 {
 	private final GeneralGC	gc;
+	private final float		lineDashImprovementFactor;
 	private final Transform	transformBuf;
 	private final float[]	floatsBuf;
 
-	private Font lastFont;
-	//TODO remove "= 1"
-	private double coordScaleFactor = 1;
+	private Font		lastFont;
+	private double[]	oldLineDash;
+	private double		oldLineWidth;
+	private double		coordScaleFactor;
 
-	public TextImprovingGC(GeneralGC gc)
+	public ScalingImprovingGC(GeneralGC gc, float lineDashImprovementFactor)
 	{
 		this.gc = gc;
+		this.lineDashImprovementFactor = lineDashImprovementFactor;
 		transformBuf = new Transform(gc.getDevice());
 		floatsBuf = new float[6];
 	}
@@ -69,7 +74,9 @@ public class TextImprovingGC implements GeneralGC
 	@Override
 	public void drawLine(double x1, double y1, double x2, double y2)
 	{
-		gc.drawLine(x1, y1, x2, y2);
+		preLineOp();
+		gc.drawLine(coordScaleFactor * x1, coordScaleFactor * y1, coordScaleFactor * x2, coordScaleFactor * y2);
+		postLineOp();
 	}
 	@Override
 	public void drawOval(double x, double y, double width, double height)
@@ -94,7 +101,12 @@ public class TextImprovingGC implements GeneralGC
 	@Override
 	public void drawPolyline(double[] pointArray)
 	{
-		gc.drawPolyline(pointArray);
+		preLineOp();
+		double[] scaledPointArray = new double[pointArray.length];
+		for(int i = 0; i < pointArray.length; i ++)
+			scaledPointArray[i] = coordScaleFactor * pointArray[i];
+		gc.drawPolyline(scaledPointArray);
+		postLineOp();
 	}
 	@Override
 	public void drawRectangle(double x, double y, double width, double height)
@@ -506,5 +518,34 @@ public class TextImprovingGC implements GeneralGC
 		transformBuf.setElements(floatsBuf[0], floatsBuf[1], floatsBuf[2], floatsBuf[3], floatsBuf[4], floatsBuf[5]);
 		gc.setTransform(transformBuf);
 		gc.setFont(lastFont);
+	}
+	private void preLineOp()
+	{
+		oldLineDash = gc.getLineDash();
+		if(oldLineDash != null)
+		{
+			coordScaleFactor = lineDashImprovementFactor;
+			oldLineWidth = gc.getLineWidth();
+			gc.setLineWidth(oldLineWidth * lineDashImprovementFactor);
+			double[] scaledLineDash = new double[oldLineDash.length];
+			for(int i = 0; i < oldLineDash.length; i ++)
+				scaledLineDash[i] = coordScaleFactor * oldLineDash[i];
+			gc.setLineDash(scaledLineDash);
+			gc.getTransform(transformBuf);
+			transformBuf.getElements(floatsBuf);
+			transformBuf.scale(1 / lineDashImprovementFactor, 1 / lineDashImprovementFactor);
+			gc.setTransform(transformBuf);
+		} else
+			coordScaleFactor = 1;
+	}
+	private void postLineOp()
+	{
+		if(oldLineDash != null)
+		{
+			transformBuf.setElements(floatsBuf[0], floatsBuf[1], floatsBuf[2], floatsBuf[3], floatsBuf[4], floatsBuf[5]);
+			gc.setTransform(transformBuf);
+			gc.setLineDash(oldLineDash);
+			gc.setLineWidth(oldLineWidth);
+		}
 	}
 }

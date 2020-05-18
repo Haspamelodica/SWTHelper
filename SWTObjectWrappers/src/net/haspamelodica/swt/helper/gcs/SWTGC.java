@@ -1,5 +1,7 @@
 package net.haspamelodica.swt.helper.gcs;
 
+import java.util.Arrays;
+
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -22,6 +24,10 @@ public class SWTGC implements GeneralGC
 
 	private org.eclipse.swt.graphics.Font	currentSWTFont;
 	private Font							currentFont;
+
+	private double		currentLineWidth;
+	private double[]	currentLineDashes;
+	private int[]		currentLineDashesInts;
 
 	public SWTGC(GC gc)
 	{
@@ -224,7 +230,13 @@ public class SWTGC implements GeneralGC
 	}
 	public double[] getLineDash()
 	{
-		return isToDs(gc.getLineDash());
+		int[] actualDashesInts = gc.getLineDash();
+		if(!Arrays.equals(actualDashesInts, currentLineDashesInts))
+		{
+			currentLineDashesInts = actualDashesInts;
+			currentLineDashes = isToDs(actualDashesInts);
+		}
+		return currentLineDashes;
 	}
 	public int getLineJoin()
 	{
@@ -236,7 +248,10 @@ public class SWTGC implements GeneralGC
 	}
 	public double getLineWidth()
 	{
-		return gc.getLineWidth();
+		int actualLineWidth = gc.getLineWidth();
+		if(actualLineWidth != (int) currentLineWidth)
+			currentLineWidth = actualLineWidth;
+		return currentLineWidth;
 	}
 	public int getStyle()
 	{
@@ -332,7 +347,14 @@ public class SWTGC implements GeneralGC
 	}
 	public void setLineDash(double[] dashes)
 	{
-		gc.setLineDash(dsToIs(dashes));
+		currentLineDashes = dashes;
+		int[] dashesInts = dsToIs(dashes);
+		if(dashesInts != null)
+			for(int i = 0; i < dashesInts.length; i ++)
+				if(dashesInts[i] <= 0)
+					dashesInts[i] = 1;
+		currentLineDashesInts = dashesInts;
+		gc.setLineDash(dashesInts);
 	}
 	public void setLineJoin(int join)
 	{
@@ -344,6 +366,7 @@ public class SWTGC implements GeneralGC
 	}
 	public void setLineWidth(double lineWidth)
 	{
+		currentLineWidth = lineWidth;
 		gc.setLineWidth((int) lineWidth);
 	}
 	@SuppressWarnings("deprecation")
@@ -373,6 +396,8 @@ public class SWTGC implements GeneralGC
 	}
 	private int[] dsToIs(double[] ds)
 	{
+		if(ds == null)
+			return null;
 		int[] is = new int[ds.length];
 		for(int i = 0; i < ds.length; i ++)
 			is[i] = (int) ds[i];
@@ -380,6 +405,8 @@ public class SWTGC implements GeneralGC
 	}
 	private double[] isToDs(int[] is)
 	{
+		if(is == null)
+			return null;
 		double[] ds = new double[is.length];
 		for(int i = 0; i < is.length; i ++)
 			ds[i] = is[i];

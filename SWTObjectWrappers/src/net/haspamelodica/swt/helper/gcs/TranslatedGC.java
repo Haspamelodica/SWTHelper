@@ -276,7 +276,13 @@ public class TranslatedGC implements GeneralGC
 	}
 	public double[] getLineDash()
 	{
-		throw new IllegalStateException("unimplemented");
+		double[] dashesScaled = gc.getLineDash();
+		if(dashesScaled == null)
+			return null;
+		double[] dashesUnscaled = new double[dashesScaled.length];
+		for(int i = 0; i < dashesScaled.length; i ++)
+			dashesUnscaled[i] = s(dashesScaled[i]);
+		return dashesUnscaled;
 	}
 	public int getLineJoin()
 	{
@@ -394,8 +400,10 @@ public class TranslatedGC implements GeneralGC
 	{
 		if(dashes != null)
 		{
-			if(!dashes.equals(getLineDash()))
-				throw new IllegalStateException("unimplemented");
+			double[] dashesScaled = new double[dashes.length];
+			for(int i = 0; i < dashes.length; i ++)
+				dashesScaled[i] = s(dashes[i]);
+			gc.setLineDash(dashesScaled);
 		} else
 			gc.setLineDash(null);
 	}

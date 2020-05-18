@@ -13,7 +13,7 @@ import net.haspamelodica.swt.helper.gcs.ClippingGC;
 import net.haspamelodica.swt.helper.gcs.GCConfig;
 import net.haspamelodica.swt.helper.gcs.GeneralGC;
 import net.haspamelodica.swt.helper.gcs.SWTGC;
-import net.haspamelodica.swt.helper.gcs.TextImprovingGC;
+import net.haspamelodica.swt.helper.gcs.ScalingImprovingGC;
 import net.haspamelodica.swt.helper.gcs.TranslatedGC;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Point;
 
@@ -23,7 +23,8 @@ public class ZoomableCanvas extends Canvas
 
 	private final List<TransformListener> transformListeners;
 
-	private boolean		improveText;
+	private boolean		improveScaling;
+	private float		lineDashImprovementFactor;
 	protected double	offX, offY, zoom = 1;
 	protected int		gW, gH;
 
@@ -31,9 +32,9 @@ public class ZoomableCanvas extends Canvas
 
 	public ZoomableCanvas(Composite parent, int style)
 	{
-		this(parent, style, false);
+		this(parent, style, false, -1);
 	}
-	public ZoomableCanvas(Composite parent, int style, boolean improveText)
+	public ZoomableCanvas(Composite parent, int style, boolean improveScaling, float lineDashImprovementFactor)
 	{
 		super(parent, style | SWT.DOUBLE_BUFFERED);
 
@@ -41,7 +42,8 @@ public class ZoomableCanvas extends Canvas
 
 		transformListeners = new ArrayList<>();
 
-		this.improveText = improveText;
+		this.improveScaling = improveScaling;
+		this.lineDashImprovementFactor = lineDashImprovementFactor;
 
 		redrawQueued = new AtomicBoolean(false);
 
@@ -53,14 +55,14 @@ public class ZoomableCanvas extends Canvas
 		redrawQueued.set(false);
 		GeneralGC gc = new SWTGC(e.gc);
 		GCConfig gcConfig = new GCConfig(gc);
-		GeneralGC igc = improveText ? new TextImprovingGC(gc) : null;
-		GeneralGC cgc = new ClippingGC(improveText ? igc : gc, 0, 0, gW, gH);
+		GeneralGC igc = improveScaling ? new ScalingImprovingGC(gc, lineDashImprovementFactor) : null;
+		GeneralGC cgc = new ClippingGC(improveScaling ? igc : gc, 0, 0, gW, gH);
 		GeneralGC worldGC = new TranslatedGC(cgc, offX, offY, zoom, true);
 		gcConfig.reset(worldGC);
 		zoomedRenderersCorrectOrder.forEach(r -> r.render(worldGC));
 		worldGC.disposeThisLayer();
 		cgc.disposeThisLayer();
-		if(improveText)
+		if(improveScaling)
 			igc.disposeThisLayer();
 		gcConfig.reset(gc);
 		gc.disposeThisLayer();
