@@ -1,2 +1,6 @@
+pom.tycho
+.polyglot.pom.tycho
 .flattened-pom.xml
 target/
+.META-INF_MANIFEST.MF
+.polyglot..META-INF_MANIFEST.MF
