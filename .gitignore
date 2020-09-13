@@ -4,3 +4,4 @@ pom.tycho
 target/
 .META-INF_MANIFEST.MF
 .polyglot..META-INF_MANIFEST.MF
+.polyglot.META-INF
