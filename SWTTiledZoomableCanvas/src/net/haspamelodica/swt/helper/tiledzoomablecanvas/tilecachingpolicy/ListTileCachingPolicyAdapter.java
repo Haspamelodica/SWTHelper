@@ -25,6 +25,7 @@ public class ListTileCachingPolicyAdapter implements TileCachingPolicy
 		toFreeBestOrder = new LinkedList<>();
 	}
 
+	@Override
 	public Rectangle getNextTileToRender(double offX, double offY, double zoom, Set<Rectangle> cachedTilePositions)
 	{
 		updateTargetListIfNecessary(offX, offY, zoom, cachedTilePositions);
@@ -34,6 +35,7 @@ public class ListTileCachingPolicyAdapter implements TileCachingPolicy
 		return null;
 	}
 
+	@Override
 	public Set<Rectangle> getTilesToFree(double offX, double offY, double zoom, Set<Rectangle> cachedTilePositions)
 	{
 		updateTargetListIfNecessary(offX, offY, zoom, cachedTilePositions);
@@ -68,17 +70,20 @@ public class ListTileCachingPolicyAdapter implements TileCachingPolicy
 			toFreeBestOrder.retainAll(cachedTilePositions);
 		}
 	}
+	@Override
 	public void setCacheSize(int cacheSize)
 	{
 		this.cacheSize = cacheSize;
 		listPolicy.setCacheSize(cacheSize);
 		updateNecessary = true;
 	}
+	@Override
 	public void setScreenSize(double w, double h)
 	{
 		listPolicy.setScreenSize(w, h);
 		updateNecessary = true;
 	}
+	@Override
 	public void setWorldBounds(double x, double y, double w, double h)
 	{
 		listPolicy.setWorldBounds(x, y, w, h);

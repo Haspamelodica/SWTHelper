@@ -59,6 +59,8 @@ public class Input<T> extends Composite
 
 		text.addSelectionListener(new SelectionAdapter()
 		{
+			@SuppressWarnings("synthetic-access")
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e)
 			{
 				updateTextAndCallListeners(true);
@@ -66,6 +68,7 @@ public class Input<T> extends Composite
 		});
 		text.addFocusListener(new FocusAdapter()
 		{
+			@SuppressWarnings("synthetic-access")
 			@Override
 			public void focusLost(FocusEvent e)
 			{

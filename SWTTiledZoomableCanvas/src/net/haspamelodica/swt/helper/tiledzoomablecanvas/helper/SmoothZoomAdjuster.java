@@ -42,9 +42,9 @@ public class SmoothZoomAdjuster
 	private static double smootherstep(double xMin, double xMax, double x, double rMin, double rMax)
 	{
 		// Scale, and clamp x to 0..1 range
-		x = clamp((x - xMin) / (xMax - xMin), 0.0, 1.0);
+		double xClamped = clamp((x - xMin) / (xMax - xMin), 0.0, 1.0);
 		// Evaluate polynomial
-		return rMin + (rMax - rMin) * x * x * x * (x * (x * 6 - 15) + 10);
+		return rMin + (rMax - rMin) * xClamped * xClamped * xClamped * (xClamped * (xClamped * 6 - 15) + 10);
 	}
 
 	private static double clamp(double x, double lowerlimit, double upperlimit)

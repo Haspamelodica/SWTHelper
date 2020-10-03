@@ -51,15 +51,15 @@ public class ByteQueue
 		{
 			while(size == 0)
 				buf.wait();
-			len = Math.min(len, size);
+			int actuallyPolled = Math.min(len, size);
 			//TODO make this faster
-			for(int i = off; i < off + len; i ++)
+			for(int i = off; i < off + actuallyPolled; i ++)
 			{
 				bytes[i] = buf[from];
 				from = (from + 1) % buf.length;
 			}
-			size -= len;
-			return len;
+			size -= actuallyPolled;
+			return actuallyPolled;
 		}
 	}
 	private void growIfNeeded(int spaceRequest)

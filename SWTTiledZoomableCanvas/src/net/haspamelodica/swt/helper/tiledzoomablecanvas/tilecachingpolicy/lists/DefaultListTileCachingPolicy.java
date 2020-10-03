@@ -20,6 +20,7 @@ public class DefaultListTileCachingPolicy implements ListTileCachingPolicy
 		this.tileWidth = tileWidth;
 	}
 	//TilePosition screen = new TilePosition(-offX / zoom, -offY / zoom, Math.max(w, h) / zoom, false);
+	@Override
 	public List<Rectangle> calculateTileCacheTargetList(double offX, double offY, double zoom)
 	{
 		List<Rectangle> target = new ArrayList<>();
@@ -40,7 +41,7 @@ public class DefaultListTileCachingPolicy implements ListTileCachingPolicy
 
 		return target;
 	}
-	public void addGridAlignedTiles(List<Rectangle> tiles, double x1, double y1, double w, double h, double xC, double yC, double tileWidth)
+	public static void addGridAlignedTiles(List<Rectangle> tiles, double x1, double y1, double w, double h, double xC, double yC, double tileWidth)
 	{
 		double tX = x1 / tileWidth;
 		double tY = y1 / tileWidth;
@@ -72,13 +73,14 @@ public class DefaultListTileCachingPolicy implements ListTileCachingPolicy
 			tiles.addAll(newTiles);
 		}
 	}
-	private BigDecimal bigIntVal(BigDecimal dBD)
+	private static BigDecimal bigIntVal(BigDecimal dBD)
 	{
 		int setPrecision = dBD.precision() - dBD.scale();
 		if(setPrecision <= 0)
 			return dBD.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ONE.negate() : BigDecimal.ZERO;
 		return dBD.round(new MathContext(setPrecision, RoundingMode.FLOOR));
 	}
+	@Override
 	public void setWorldBounds(double x, double y, double w, double h)
 	{
 		this.xW = x;
@@ -88,6 +90,7 @@ public class DefaultListTileCachingPolicy implements ListTileCachingPolicy
 		double maxWH = Math.max(w, h);
 		world = new Rectangle(x, y, maxWH, maxWH);
 	}
+	@Override
 	public void setScreenSize(double w, double h)
 	{
 		this.gW = w;

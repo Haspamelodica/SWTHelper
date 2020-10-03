@@ -127,6 +127,8 @@ public class TestClippingHelper
 				x += dx;
 				y += dy;
 				break;
+			default:
+				throw new IllegalStateException("Illegal dragging mode: " + draggingMode);
 		}
 		lastMouseX = e.x;
 		lastMouseY = e.y;

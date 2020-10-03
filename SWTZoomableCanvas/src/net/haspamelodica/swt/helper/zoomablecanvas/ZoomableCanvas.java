@@ -62,7 +62,7 @@ public class ZoomableCanvas extends Canvas
 		zoomedRenderersCorrectOrder.forEach(r -> r.render(worldGC));
 		worldGC.disposeThisLayer();
 		cgc.disposeThisLayer();
-		if(improveScaling)
+		if(igc != null)
 			igc.disposeThisLayer();
 		gcConfig.reset(gc);
 		gc.disposeThisLayer();
@@ -140,15 +140,16 @@ public class ZoomableCanvas extends Canvas
 		//		redrawThreadsafe();
 		getDisplay().asyncExec(this::redraw);
 	}
-	private double clampToNormalValues(double d, double nanReplacement)
+	private static double clampToNormalValues(double d, double nanReplacement)
 	{
-		if(Double.isNaN(d))
-			d = nanReplacement;
-		if(d < -Double.MAX_VALUE)
-			d = -Double.MAX_VALUE;
-		if(d > Double.MAX_VALUE)
-			d = Double.MAX_VALUE;
-		return d;
+		double clamped = d;
+		if(Double.isNaN(clamped))
+			clamped = nanReplacement;
+		if(clamped < -Double.MAX_VALUE)
+			clamped = -Double.MAX_VALUE;
+		if(clamped > Double.MAX_VALUE)
+			clamped = Double.MAX_VALUE;
+		return clamped;
 	}
 	public void redrawThreadsafe()
 	{

@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+@SuppressWarnings("synthetic-access")
 public abstract class SWTSystemInOutApplication
 {
 	private static final boolean	ECHO_SYSTEM_MESSAGES_TO_REAL_SYSERR	= false;
@@ -33,7 +34,7 @@ public abstract class SWTSystemInOutApplication
 
 	private Display				display;
 	private StyledText			output;
-	private List<StyleRange>	ranges	= new ArrayList<StyleRange>();
+	private List<StyleRange>	ranges	= new ArrayList<>();
 	private Color				sysinForegroundColor;
 	private Color				sysinBackgroundColor;
 	private Color				syserrForegroundColor;
@@ -135,14 +136,17 @@ public abstract class SWTSystemInOutApplication
 		realSystemErr = System.err;
 		realSystemIn = System.in;
 	}
+	@SuppressWarnings("resource") //the created stream neither should nor needs to be closed
 	private void setFakeSystemOut()
 	{
 		System.setOut(createFakeSystemOut());
 	}
+	@SuppressWarnings("resource") //the created stream neither should nor needs to be closed
 	private void setFakeSystemErr()
 	{
 		System.setErr(createFakeSystemErr());
 	}
+	@SuppressWarnings("resource") //the created stream neither should nor needs to be closed
 	private void setFakeSystemIn()
 	{
 		System.setIn(createFakeSystemIn());
@@ -217,17 +221,17 @@ public abstract class SWTSystemInOutApplication
 	}
 	private void printSystemMessage(String message)
 	{
-		message += "\r\n";
+		String messageWithCRLF = message + "\r\n";
 		synchronized(outputBuffer)
 		{
 			if(ECHO_SYSTEM_MESSAGES_TO_REAL_SYSERR)
 			{
-				realSystemErr.print(message);
+				realSystemErr.print(messageWithCRLF);
 				realSystemErr.flush();
 			}
 			int start = outputBuffer.size();
-			outputBuffer.add(message.getBytes());
-			ranges.add(new StyleRange(start, message.length(), systemMessagesForegroundColor, systemMessagesBackgroundColor));
+			outputBuffer.add(messageWithCRLF.getBytes());
+			ranges.add(new StyleRange(start, messageWithCRLF.length(), systemMessagesForegroundColor, systemMessagesBackgroundColor));
 		}
 		changed = true;
 		execSWTSafe(() -> redrawOutputIfNeeded());
@@ -239,8 +243,10 @@ public abstract class SWTSystemInOutApplication
 			try
 			{
 				retVal = userInputBuffer.pollBlocking() & 0xFF;
-			} catch(InterruptedException e)
-			{}
+			} catch(@SuppressWarnings("unused") InterruptedException e)
+			{
+				//nothing to do; retVal still is -1
+			}
 		while(retVal == -1);
 		if(ECHO_SYSIN_TO_REAL_SYSOUT)
 		{
@@ -254,15 +260,17 @@ public abstract class SWTSystemInOutApplication
 		for(;;)
 			try
 			{
-				len = userInputBuffer.pollSemiBlocking(b, off, len);
+				int polled = userInputBuffer.pollSemiBlocking(b, off, len);
 				if(ECHO_SYSIN_TO_REAL_SYSOUT)
 				{
-					realSystemOut.write(b, off, len);
+					realSystemOut.write(b, off, polled);
 					realSystemOut.flush();
 				}
-				return len;
-			} catch(InterruptedException e)
-			{}
+				return polled;
+			} catch(@SuppressWarnings("unused") InterruptedException e)
+			{
+				//nothing to do; try again
+			}
 	}
 	private void redrawOutputIfNeeded()
 	{

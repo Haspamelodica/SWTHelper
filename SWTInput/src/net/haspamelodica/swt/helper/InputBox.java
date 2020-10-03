@@ -67,6 +67,7 @@ public abstract class InputBox<O>
 	{
 		return new InputBox<O>()
 		{
+			@Override
 			protected Supplier<O> initInput(Composite parent, O hint, Consumer<O> confirm)
 			{
 				return initInput.apply(parent, hint);
@@ -77,6 +78,7 @@ public abstract class InputBox<O>
 	{
 		return new InputBox<O>()
 		{
+			@Override
 			protected Supplier<O> initInput(Composite parent, O hint, Consumer<O> confirm)
 			{
 				parent.setLayout(new GridLayout());

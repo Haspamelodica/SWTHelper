@@ -22,14 +22,14 @@ public class NumberInput<N extends Number> extends Input<N>
 		super(parent, style);
 		super.setStringToTMapper(s ->
 		{
-			s = s.trim();
-			if(unit != null && s.endsWith(unit))
-				s = s.substring(0, s.length() - unit.length()).trim();
-			s = s.replace(',', '.');
+			String trimmed = s.trim();
+			if(unit != null && trimmed.endsWith(unit))
+				trimmed = trimmed.substring(0, trimmed.length() - unit.length()).trim();
+			trimmed = trimmed.replace(',', '.');
 			try
 			{
-				return stringToNMapper.apply(s);
-			} catch(NumberFormatException e)
+				return stringToNMapper.apply(trimmed);
+			} catch(@SuppressWarnings("unused") NumberFormatException e)
 			{
 				return null;//sign for invalid input
 			}
@@ -39,20 +39,24 @@ public class NumberInput<N extends Number> extends Input<N>
 		nTostringMapper = n -> precision == -1 ? String.valueOf(n).replace('.', decimalSeparator) : String.format(isNonIntegral ? "%." + precision + "f" : "%d", n);
 		setErrorContent("NaN");
 	}
+	@Override
 	public Input<N> setStringToTMapper(Function<String, N> stringToN)
 	{
 		stringToNMapper = stringToN;
 		return this;
 	}
+	@Override
 	public Function<String, N> getStringToTMapper()
 	{
 		return stringToNMapper;
 	}
+	@Override
 	public Input<N> setTToStringMapper(Function<N, String> nToString)
 	{
 		nTostringMapper = nToString;
 		return this;
 	}
+	@Override
 	public Function<N, String> getTToStringMapper()
 	{
 		return nTostringMapper;
@@ -70,9 +74,9 @@ public class NumberInput<N extends Number> extends Input<N>
 	}
 	public NumberInput<N> setUnit(String unit)
 	{
-		unit = unit == null ? "" : unit;
-		this.unit = unit;
-		unitWithLeadingSpace = "".equals(unit) ? "" : ' ' + unit;
+		String unitNotNull = unit == null ? "" : unit;
+		this.unit = unitNotNull;
+		unitWithLeadingSpace = "".equals(unitNotNull) ? "" : ' ' + unitNotNull;
 		setErrorContent("NaN" + unitWithLeadingSpace);
 		setValue(getValue());//update
 		return this;

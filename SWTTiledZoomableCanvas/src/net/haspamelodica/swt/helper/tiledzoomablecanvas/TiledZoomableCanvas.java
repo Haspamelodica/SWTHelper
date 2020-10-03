@@ -236,6 +236,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	{
 		return wY2 - wY1;
 	}
+	@Override
 	public void commitTransform()
 	{
 		updateTileCache();
@@ -432,6 +433,7 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 	}
 	public static interface PixelBasedTileRenderer
 	{
+		@SuppressWarnings("unused")
 		public default int getAlphaAt(double x, double y, double pxWidthX, double pxWidthY)
 		{
 			return 255;
