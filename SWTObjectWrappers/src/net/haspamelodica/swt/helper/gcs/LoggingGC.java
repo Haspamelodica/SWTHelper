@@ -13,6 +13,7 @@ import org.eclipse.swt.graphics.LineAttributes;
 import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.graphics.Region;
 import org.eclipse.swt.graphics.Transform;
+
 import net.haspamelodica.swt.helper.swtobjectwrappers.Font;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Path;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Point;
