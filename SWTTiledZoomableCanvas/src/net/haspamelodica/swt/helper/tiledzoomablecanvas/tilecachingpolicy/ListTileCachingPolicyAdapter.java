@@ -15,7 +15,7 @@ public class ListTileCachingPolicyAdapter implements TileCachingPolicy
 	private boolean					updateNecessary;
 	private double					lastX, lastY, lastZoom;
 	private int						cacheSize;
-	private List<Rectangle>		target;
+	private List<Rectangle>			target;
 	private Queue<Rectangle>		toFreeBestOrder;
 
 	public ListTileCachingPolicyAdapter(ListTileCachingPolicy listPolicy)

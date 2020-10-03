@@ -11,7 +11,7 @@ public class FloatInput extends NumberInput<Float>
 	}
 	public FloatInput(Composite parent, int style)
 	{
-		super(parent, style,true);
+		super(parent, style, true);
 		setStringToTMapper(Float::valueOf);
 	}
 }

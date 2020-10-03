@@ -11,7 +11,7 @@ public class LongInput extends NumberInput<Long>
 	}
 	public LongInput(Composite parent, int style)
 	{
-		super(parent, style,false);
+		super(parent, style, false);
 		setStringToTMapper(Long::valueOf);
 	}
 }

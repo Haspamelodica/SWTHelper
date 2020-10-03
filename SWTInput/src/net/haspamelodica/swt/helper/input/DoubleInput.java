@@ -11,7 +11,7 @@ public class DoubleInput extends NumberInput<Double>
 	}
 	public DoubleInput(Composite parent, int style)
 	{
-		super(parent, style,true);
+		super(parent, style, true);
 		setStringToTMapper(Double::valueOf);
 	}
 }

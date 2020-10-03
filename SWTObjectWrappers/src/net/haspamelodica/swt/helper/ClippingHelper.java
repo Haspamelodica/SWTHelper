@@ -11,7 +11,7 @@ public class ClippingHelper
 		double sclY = (dstY2 - dstY1) / (srcY2 - srcY1);
 		double invSclX = 1 / sclX;
 		double invSclY = 1 / sclY;
-		
+
 		double srcX1Clipped = srcX1;
 		double srcY1Clipped = srcY1;
 		double srcX2Clipped = srcX2;
@@ -97,7 +97,7 @@ public class ClippingHelper
 		double y1Clipped = y1;
 		double x2Clipped = x2;
 		double y2Clipped = y2;
-		
+
 		for(;;)
 		{
 			int outCode1 = outCode(x1Clipped, y1Clipped, xr, xl, yt, yb);
