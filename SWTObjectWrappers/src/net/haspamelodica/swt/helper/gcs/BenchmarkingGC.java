@@ -642,7 +642,9 @@ public class BenchmarkingGC implements GeneralGC
 	}
 	@Override
 	public void disposeThisLayer()
-	{}
+	{
+		//nothing to do
+	}
 
 	private long lastAction = System.currentTimeMillis();
 	private void methodStart(String name)

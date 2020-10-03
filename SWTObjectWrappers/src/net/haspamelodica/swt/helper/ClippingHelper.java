@@ -11,49 +11,58 @@ public class ClippingHelper
 		double sclY = (dstY2 - dstY1) / (srcY2 - srcY1);
 		double invSclX = 1 / sclX;
 		double invSclY = 1 / sclY;
+		
+		double srcX1Clipped = srcX1;
+		double srcY1Clipped = srcY1;
+		double srcX2Clipped = srcX2;
+		double srcY2Clipped = srcY2;
+		double dstX1Clipped = dstX1;
+		double dstY1Clipped = dstY1;
+		double dstX2Clipped = dstX2;
+		double dstY2Clipped = dstY2;
 
-		if(dstX1 < minDstX1)
+		if(dstX1Clipped < minDstX1)
 		{
-			double srcDX = Math.ceil((dstX1 - minDstX1) * invSclX);
-			srcX1 -= srcDX;
-			dstX1 -= srcDX * sclX;
-			if(dstX2 - dstX1 <= 0)
+			double srcDX = Math.ceil((dstX1Clipped - minDstX1) * invSclX);
+			srcX1Clipped -= srcDX;
+			dstX1Clipped -= srcDX * sclX;
+			if(dstX2Clipped - dstX1Clipped <= 0)
 				return null;
 		}
-		if(dstY1 < minDstY1)
+		if(dstY1Clipped < minDstY1)
 		{
-			double srcDY = Math.ceil((dstY1 - minDstY1) * invSclY);
-			srcY1 -= srcDY;
-			dstY1 -= srcDY * sclY;
-			if(dstY2 - dstY1 <= 0)
+			double srcDY = Math.ceil((dstY1Clipped - minDstY1) * invSclY);
+			srcY1Clipped -= srcDY;
+			dstY1Clipped -= srcDY * sclY;
+			if(dstY2Clipped - dstY1Clipped <= 0)
 				return null;
 		}
-		if(dstX2 > maxDstX2)
+		if(dstX2Clipped > maxDstX2)
 		{
-			double srcDX = Math.floor((dstX2 - maxDstX2) * invSclX);
-			srcX2 -= srcDX;
-			dstX2 -= srcDX * sclX;
-			if(dstX2 - dstX1 <= 0)
+			double srcDX = Math.floor((dstX2Clipped - maxDstX2) * invSclX);
+			srcX2Clipped -= srcDX;
+			dstX2Clipped -= srcDX * sclX;
+			if(dstX2Clipped - dstX1Clipped <= 0)
 				return null;
 		}
-		if(dstY2 > maxDstY2)
+		if(dstY2Clipped > maxDstY2)
 		{
-			double srcDY = Math.floor((dstY2 - maxDstY2) * invSclY);
-			srcY2 -= srcDY;
-			dstY2 -= srcDY * sclY;
-			if(dstY2 - dstY1 <= 0)
+			double srcDY = Math.floor((dstY2Clipped - maxDstY2) * invSclY);
+			srcY2Clipped -= srcDY;
+			dstY2Clipped -= srcDY * sclY;
+			if(dstY2Clipped - dstY1Clipped <= 0)
 				return null;
 		}
 
-		rcrInstance.srcX1 = (int) srcX1;
-		rcrInstance.srcY1 = (int) srcY1;
-		rcrInstance.srcX2 = (int) srcX2;
-		rcrInstance.srcY2 = (int) srcY2;
+		rcrInstance.srcX1 = (int) srcX1Clipped;
+		rcrInstance.srcY1 = (int) srcY1Clipped;
+		rcrInstance.srcX2 = (int) srcX2Clipped;
+		rcrInstance.srcY2 = (int) srcY2Clipped;
 
-		rcrInstance.dstX1 = dstX1;
-		rcrInstance.dstY1 = dstY1;
-		rcrInstance.dstX2 = dstX2;
-		rcrInstance.dstY2 = dstY2;
+		rcrInstance.dstX1 = dstX1Clipped;
+		rcrInstance.dstY1 = dstY1Clipped;
+		rcrInstance.dstX2 = dstX2Clipped;
+		rcrInstance.dstY2 = dstY2Clipped;
 		return rcrInstance;
 	}
 	public static class RectangleClippingResult
@@ -76,56 +85,61 @@ public class ClippingHelper
 	public static LineClipResult clipLineRectangleCohenSutherland(double x1, double y1, double x2, double y2, double xr, double yt, double xl, double yb, double lineWidth)
 	{
 		//TODO
-		xr -= lineWidth / 2;
-		yt -= lineWidth / 2;
-		xl += lineWidth / 2;
-		yb += lineWidth / 2;
-		return clipRectangleLineCohenSuterland(x1, y1, x2, y2, xr, yt, xl, yb);
+		double xrLW = xr - lineWidth / 2;
+		double ytLW = yt - lineWidth / 2;
+		double xlLW = xl + lineWidth / 2;
+		double ybLW = yb + lineWidth / 2;
+		return clipRectangleLineCohenSuterland(x1, y1, x2, y2, xrLW, ytLW, xlLW, ybLW);
 	}
 	private static LineClipResult clipRectangleLineCohenSuterland(double x1, double y1, double x2, double y2, double xr, double yt, double xl, double yb)
 	{
+		double x1Clipped = x1;
+		double y1Clipped = y1;
+		double x2Clipped = x2;
+		double y2Clipped = y2;
+		
 		for(;;)
 		{
-			int outCode1 = outCode(x1, y1, xr, xl, yt, yb);
-			int outCode2 = outCode(x2, y2, xr, xl, yt, yb);
+			int outCode1 = outCode(x1Clipped, y1Clipped, xr, xl, yt, yb);
+			int outCode2 = outCode(x2Clipped, y2Clipped, xr, xl, yt, yb);
 			if((outCode1 & outCode2) != 0)
 				return null;
 			if(outCode1 == 0 && outCode2 == 0)
 			{
-				lcrInstance.x1 = x1;
-				lcrInstance.y1 = y1;
-				lcrInstance.x2 = x2;
-				lcrInstance.y2 = y2;
+				lcrInstance.x1 = x1Clipped;
+				lcrInstance.y1 = y1Clipped;
+				lcrInstance.x2 = x2Clipped;
+				lcrInstance.y2 = y2Clipped;
 				return lcrInstance;
 			}
 			if(outCode1 == 0)
 			{
-				double tempCoord = x1;
-				x1 = x2;
-				x2 = tempCoord;
-				tempCoord = y1;
-				y1 = y2;
-				y2 = tempCoord;
+				double tempCoord = x1Clipped;
+				x1Clipped = x2Clipped;
+				x2Clipped = tempCoord;
+				tempCoord = y1Clipped;
+				y1Clipped = y2Clipped;
+				y2Clipped = tempCoord;
 				int tempCode = outCode1;
 				outCode1 = outCode2;
 				outCode2 = tempCode;
 			}
 			if((outCode1 & OUT_RIGHT) != 0)
 			{
-				y1 += (y2 - y1) * (xr - x1) / (x2 - x1);
-				x1 = xr;
+				y1Clipped += (y2Clipped - y1Clipped) * (xr - x1Clipped) / (x2Clipped - x1Clipped);
+				x1Clipped = xr;
 			} else if((outCode1 & OUT_LEFT) != 0)
 			{
-				y1 += (y2 - y1) * (xl - x1) / (x2 - x1);
-				x1 = xl;
+				y1Clipped += (y2Clipped - y1Clipped) * (xl - x1Clipped) / (x2Clipped - x1Clipped);
+				x1Clipped = xl;
 			} else if((outCode1 & OUT_TOP) != 0)
 			{
-				x1 += (x2 - x1) * (yt - y1) / (y2 - y1);
-				y1 = yt;
+				x1Clipped += (x2Clipped - x1Clipped) * (yt - y1Clipped) / (y2Clipped - y1Clipped);
+				y1Clipped = yt;
 			} else if((outCode1 & OUT_BOTTOM) != 0)
 			{
-				x1 += (x2 - x1) * (yb - y1) / (y2 - y1);
-				y1 = yb;
+				x1Clipped += (x2Clipped - x1Clipped) * (yb - y1Clipped) / (y2Clipped - y1Clipped);
+				y1Clipped = yb;
 			}
 		}
 	}

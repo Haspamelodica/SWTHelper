@@ -44,6 +44,7 @@ public class Font
 	{
 		return new org.eclipse.swt.graphics.Font(dev, name, Math.max((int) height, 1), style);
 	}
+	@SuppressWarnings("static-method") //maybe we later want to do something instance-dependent
 	public void disposeSWTFont(org.eclipse.swt.graphics.Font swtFont)
 	{
 		swtFont.dispose();

@@ -1,7 +1,5 @@
 package net.haspamelodica.swt.helper.swtobjectwrappers;
 
-import org.eclipse.swt.SWT;
-
 public class Rectangle
 {
 	/**
@@ -64,8 +62,6 @@ public class Rectangle
 	 */
 	public void add(Rectangle rect)
 	{
-		if(rect == null)
-			SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		double left = x < rect.x ? x : rect.x;
 		double top = y < rect.y ? y : rect.y;
 		double lhs = x + width;
@@ -109,8 +105,6 @@ public class Rectangle
 	 */
 	public boolean contains(Point pt)
 	{
-		if(pt == null)
-			SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		return contains(pt.x, pt.y);
 	}
 
@@ -169,8 +163,6 @@ public class Rectangle
 	 */
 	public void intersect(Rectangle rect)
 	{
-		if(rect == null)
-			SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		if(this == rect)
 			return;
 		double left = x > rect.x ? x : rect.x;
@@ -205,8 +197,6 @@ public class Rectangle
 	 */
 	public Rectangle intersection(Rectangle rect)
 	{
-		if(rect == null)
-			SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		if(this == rect)
 			return new Rectangle(x, y, width, height);
 		double left = x > rect.x ? x : rect.x;
@@ -276,8 +266,6 @@ public class Rectangle
 	 */
 	public boolean intersects(Rectangle rect)
 	{
-		if(rect == null)
-			SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		return rect == this || intersects(rect.x, rect.y, rect.width, rect.height);
 	}
 
@@ -331,8 +319,6 @@ public class Rectangle
 	 */
 	public Rectangle union(Rectangle rect)
 	{
-		if(rect == null)
-			SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		double left = x < rect.x ? x : rect.x;
 		double top = y < rect.y ? y : rect.y;
 		double lhs = x + width;

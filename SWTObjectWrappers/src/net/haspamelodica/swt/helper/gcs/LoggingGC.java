@@ -651,7 +651,9 @@ public class LoggingGC implements GeneralGC
 	}
 	@Override
 	public void disposeThisLayer()
-	{}
+	{
+		//nothing to do
+	}
 
 	private void methodStart(String name, Object... params)
 	{
@@ -680,6 +682,8 @@ public class LoggingGC implements GeneralGC
 				})
 				.collect(Collectors.joining(", ", "GC #" + id + ": " + name + '(', ")")));
 	}
-	private void methodStop(String name)
-	{}
+	private void methodStop(@SuppressWarnings("unused") String name)
+	{
+		//do nothing; maybe introduce timing analysis later
+	}
 }

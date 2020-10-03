@@ -424,6 +424,7 @@ public class Path
 		data.types = types;
 		return new org.eclipse.swt.graphics.Path(device, data);
 	}
+	@SuppressWarnings("static-method") //maybe we later want to do something instance-dependent
 	public void disposeSWTPath(org.eclipse.swt.graphics.Path swtPath)
 	{
 		swtPath.dispose();
