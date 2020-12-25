@@ -189,10 +189,11 @@ public abstract class InputBox<O>
 	 * 
 	 * @param parent The composite where the mechanism might embed required controls. 
 	 * @param hint The default value to be presented initially by the input mechanism. 
-	 * @param confirm A method that the input mechanism may call if the user confirms a value inside the input mechanism. The method must return the value given by the user.
-	 * Confirming a value there will keep the value as valid result even if the user cancels the dialog later. 
+	 * @param confirm A method that the input mechanism may call if the user confirms a value inside the input mechanism.
+	 * The method must be called with the value given by the user.
+	 * Confirming a value there will close the dialog, as if the user had clicked on 'OK'.
 	 * @return A method to obtain the value from the input mechanism. 
-	 * This is called if the user closes the wrapping dialog with 'OK'. It will replace the value set by any previous calls to the confirm method.
+	 * This is called if the user closes the wrapping dialog with 'OK'.
 	 */
 	protected abstract Supplier<O> initInput(Composite parent, O hint, Consumer<O> confirm);
 
