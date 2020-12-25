@@ -22,6 +22,12 @@ import net.haspamelodica.swt.helper.input.Input;
 import net.haspamelodica.swt.helper.input.IntegerInput;
 import net.haspamelodica.swt.helper.input.StringInput;
 
+/**
+ * Wrapper around an user input mechanism (e.g. a {@link Input}) presenting the input mechanism in a dialog with title and explaining text.
+ * <p>
+ *  You may specify the user input mechanism as {@link Input} class or
+ *  as implementation of the {@link #initInput(Composite, Object, Consumer)} method.
+ */
 public abstract class InputBox<O>
 {
 	public final static InputBox<String>	textSingleInput;
@@ -46,23 +52,47 @@ public abstract class InputBox<O>
 		floatInput = createInputBased(FloatInput::new);
 	}
 
-
+	/**
+	 * Convenience method to open a dialog obtaining a string value from the user.
+	 */
 	public static String textSingleInput(Shell parent, String title, String message, String hint)
 	{
 		return textSingleInput.input(parent, title, message, hint);
 	}
+
+	/**
+	 * Convenience method to open a dialog obtaining a string value from the user.
+	 */
 	public static String textMultiInput(Shell parent, String title, String message, String hint)
 	{
 		return textMultiInput.input(parent, title, message, hint);
 	}
+	
+	/**
+	 * Convenience method to open a dialog obtaining an integer value from the user.
+	 */
 	public static Integer intInput(Shell parent, String title, String message, Integer hint)
 	{
 		return intInput.input(parent, title, message, hint);
 	}
+
+	
+	/**
+	 * Convenience method to open a dialog obtaining a float value from the user.
+	 */
 	public static Float floatInput(Shell parent, String title, String message, Float hint)
 	{
 		return floatInput.input(parent, title, message, hint);
 	}
+	
+	/**
+	 * Convenience method to create an {@link InputBox} instance from an implementation 
+	 * of the {@link #initInput(Composite, Object, Consumer)} method, i.e. from an explicit 
+	 * implementation of the input mechanism to embed.
+	 * 
+	 * See {@link #initInput(Composite, Object, Consumer)} for more details on the 
+	 * requirements for a proper input mechanism implementation.
+	 */
 	public static <O> InputBox<O> create(BiFunction<Composite, O, Supplier<O>> initInput)
 	{
 		return new InputBox<O>()
@@ -74,6 +104,14 @@ public abstract class InputBox<O>
 			}
 		};
 	}
+	
+	
+	/**
+	 * Convenience method to create an {@link InputBox} instance from a given {@link Input}
+	 * class. 
+	 * 
+	 * @param initInput The constructor of the required Input class.
+	 */
 	public static <O> InputBox<O> createInputBased(Function<Composite, Input<O>> initInput)
 	{
 		return new InputBox<O>()
@@ -93,6 +131,15 @@ public abstract class InputBox<O>
 		};
 	}
 
+	/**
+	 * Open the dialog.
+	 * 
+	 * @param parent The parent shell for the dialog.
+	 * @param title The title of the dialog.
+	 * @param message The explaining message in the dialog.
+	 * @param hint The default value set in the input control. 
+	 * @return The value given by the user via the input control.
+	 */
 	public O input(Shell parent, String title, String message, O hint)
 	{
 		@SuppressWarnings("unchecked")
@@ -101,6 +148,8 @@ public abstract class InputBox<O>
 		openAsMessageBox(parent, dialogShell);
 		return userInputArr[0];
 	}
+	
+	
 	private Shell initInputShell(String title, String message, O hint, Shell parentShell, O[] userInputArr)
 	{
 		Shell dialogShell = new Shell(parentShell, SWT.BORDER | SWT.CLOSE | SWT.RESIZE);
@@ -131,6 +180,20 @@ public abstract class InputBox<O>
 		cancel.addListener(SWT.Selection, e -> parent.dispose());
 		msgLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 	}
+	
+	/**
+	 * Create the input mechanism to be embedded in the dialog. 
+	 * 
+	 * Consider {@link #create(BiFunction)} or {@link #createInputBased(Function)}  
+	 * instead of implementing a subclass of your own.  
+	 * 
+	 * @param parent The composite where the mechanism might embed required controls. 
+	 * @param hint The default value to be presented initially by the input mechanism. 
+	 * @param confirm A method that the input mechanism may call if the user confirms a value inside the input mechanism. The method must return the value given by the user.
+	 * Confirming a value there will keep the value as valid result even if the user cancels the dialog later. 
+	 * @return A method to obtain the value from the input mechanism. 
+	 * This is called if the user closes the wrapping dialog with 'OK'. It will replace the value set by any previous calls to the confirm method.
+	 */
 	protected abstract Supplier<O> initInput(Composite parent, O hint, Consumer<O> confirm);
 
 	private static void openAsMessageBox(Shell parent, Shell dialogShell)
