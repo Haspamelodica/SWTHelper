@@ -16,6 +16,7 @@ import net.haspamelodica.swt.helper.gcs.SWTGC;
 import net.haspamelodica.swt.helper.gcs.ScalingImprovingGC;
 import net.haspamelodica.swt.helper.gcs.TranslatedGC;
 import net.haspamelodica.swt.helper.swtobjectwrappers.Point;
+import net.haspamelodica.swt.helper.swtobjectwrappers.Rectangle;
 
 public class ZoomableCanvas extends Canvas
 {
@@ -198,6 +199,10 @@ public class ZoomableCanvas extends Canvas
 	{
 		public void transformChanged(double offX, double offY, double zoom);
 	}
+	public Point canvasToWorldCoords(org.eclipse.swt.graphics.Point canvasCoords)
+	{
+		return canvasToWorldCoords(canvasCoords.x, canvasCoords.y);
+	}
 	public Point canvasToWorldCoords(Point canvasCoords)
 	{
 		return canvasToWorldCoords(canvasCoords.x, canvasCoords.y);
@@ -213,5 +218,25 @@ public class ZoomableCanvas extends Canvas
 	public Point worldToCanvasCoords(double x, double y)
 	{
 		return new Point(x * zoom + offX, y * zoom + offY);
+	}
+	public Rectangle canvasToWorldCoords(org.eclipse.swt.graphics.Rectangle canvasCoords)
+	{
+		return canvasToWorldCoords(canvasCoords.x, canvasCoords.y, canvasCoords.width, canvasCoords.height);
+	}
+	public Rectangle canvasToWorldCoords(Rectangle canvasCoords)
+	{
+		return canvasToWorldCoords(canvasCoords.x, canvasCoords.y, canvasCoords.width, canvasCoords.height);
+	}
+	public Rectangle canvasToWorldCoords(double x, double y, double width, double height)
+	{
+		return new Rectangle((x - offX) / zoom, (y - offY) / zoom, width / zoom, height / zoom);
+	}
+	public Rectangle worldToCanvasCoords(Rectangle worldCoords)
+	{
+		return worldToCanvasCoords(worldCoords.x, worldCoords.y, worldCoords.width, worldCoords.height);
+	}
+	public Rectangle worldToCanvasCoords(double x, double y, double width, double height)
+	{
+		return new Rectangle(x * zoom + offX, y * zoom + offY, width * zoom, height * zoom);
 	}
 }
