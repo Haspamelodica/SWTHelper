@@ -399,11 +399,15 @@ public class Path
 
 	public Path translate(double x, double y, double z)
 	{
+		return translate(x, y, z, z);
+	}
+	public Path translate(double x, double y, double zx, double zy)
+	{
 		double[] pointsTranslated = new double[pointsCount + POINTS_LENGTH_OVERHEAD];
 		for(int i = 0; i < pointsCount; i += 2)
 		{
-			pointsTranslated[i] = points[i] * z - x;
-			pointsTranslated[i + 1] = points[i + 1] * z - y;
+			pointsTranslated[i] = points[i] * zx - x;
+			pointsTranslated[i + 1] = points[i + 1] * zy - y;
 		}
 		return new Path(pointsTranslated, types, pointsCount, typesCount, false, true);
 	}

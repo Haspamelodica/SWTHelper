@@ -336,7 +336,11 @@ public class Rectangle
 	}
 	public Rectangle translate(double x, double y, double z)
 	{
-		return new Rectangle(this.x * z - x, this.y * z - y, width * z, height * z);
+		return translate(x, y, z, z);
+	}
+	public Rectangle translate(double x, double y, double zx, double zy)
+	{
+		return new Rectangle(this.x * zx - x, this.y * zy - y, width * zx, height * zy);
 	}
 	public Rectangle translate(Point off)
 	{

@@ -18,20 +18,25 @@ import net.haspamelodica.swt.helper.swtobjectwrappers.Rectangle;
 public class TranslatedGC implements GeneralGC
 {
 	private final GeneralGC	gc;
-	private final double	imgOffX, imgOffY, zoom;
+	private final double	imgOffX, imgOffY, zoomX, zoomY;
 
 	public TranslatedGC(GeneralGC gc, double x, double y, double zoom, boolean invertOffset)
 	{
+		this(gc, x, y, zoom, zoom, invertOffset);
+	}
+	public TranslatedGC(GeneralGC gc, double x, double y, double zoomX, double zoomY, boolean invertOffset)
+	{
 		this.gc = gc;
-		this.zoom = zoom;
+		this.zoomX = zoomX;
+		this.zoomY = zoomY;
 		if(invertOffset)
 		{
 			this.imgOffX = -x;
 			this.imgOffY = -y;
 		} else
 		{
-			this.imgOffX = s(x);
-			this.imgOffY = s(y);
+			this.imgOffX = sx(x);
+			this.imgOffY = sy(y);
 		}
 	}
 	public TranslatedGC(GeneralGC gc, Point off)
@@ -43,21 +48,29 @@ public class TranslatedGC implements GeneralGC
 		this(gc, xOff, yOff, 1, true);
 	}
 
-	private double s(double s)
+	private double sx(double s)
 	{
-		return s * zoom;
+		return s * zoomX;
 	}
-	private double si(double s)
+	private double sy(double s)
 	{
-		return s / zoom;
+		return s * zoomY;
 	}
-	private double sx(double x)
+	private double six(double s)
 	{
-		return x * zoom - imgOffX;
+		return s / zoomX;
 	}
-	private double sy(double y)
+	private double siy(double s)
 	{
-		return y * zoom - imgOffY;
+		return s / zoomY;
+	}
+	private double tx(double x)
+	{
+		return x * zoomX - imgOffX;
+	}
+	private double ty(double y)
+	{
+		return y * zoomY - imgOffY;
 	}
 
 	// TODO implement more methods!
@@ -90,32 +103,32 @@ public class TranslatedGC implements GeneralGC
 	public void drawImage(Image image, double x, double y)
 	{
 		org.eclipse.swt.graphics.Rectangle bounds = image.getBounds();
-		gc.drawImage(image, bounds.x, bounds.y, bounds.width, bounds.height, sx(x), sy(y), s(bounds.width), s(bounds.height));
+		gc.drawImage(image, bounds.x, bounds.y, bounds.width, bounds.height, tx(x), ty(y), sx(bounds.width), sy(bounds.height));
 	}
 	@Override
 	public void drawImage(Image image, int srcX, int srcY, int srcWidth, int srcHeight, double destX, double destY, double destWidth, double destHeight)
 	{
-		gc.drawImage(image, srcX, srcY, srcWidth, srcHeight, sx(destX), sy(destY), s(destWidth), s(destHeight));
+		gc.drawImage(image, srcX, srcY, srcWidth, srcHeight, tx(destX), ty(destY), sx(destWidth), sy(destHeight));
 	}
 	@Override
 	public void drawLine(double x1, double y1, double x2, double y2)
 	{
-		gc.drawLine(sx(x1), sy(y1), sx(x2), sy(y2));
+		gc.drawLine(tx(x1), ty(y1), tx(x2), ty(y2));
 	}
 	@Override
 	public void drawOval(double x, double y, double width, double height)
 	{
-		gc.drawOval(sx(x), sy(y), s(width), s(height));
+		gc.drawOval(tx(x), ty(y), sx(width), sy(height));
 	}
 	@Override
 	public void drawPath(Path path)
 	{
-		gc.drawPath(path.translate(imgOffX, imgOffY, zoom));
+		gc.drawPath(path.translate(imgOffX, imgOffY, zoomX, zoomY));
 	}
 	@Override
 	public void drawPoint(double x, double y)
 	{
-		gc.drawPoint(sx(x), sy(y));
+		gc.drawPoint(tx(x), ty(y));
 	}
 	@Override
 	public void drawPolygon(double[] pointArray)
@@ -123,8 +136,8 @@ public class TranslatedGC implements GeneralGC
 		double[] pointArrayScaled = new double[pointArray.length];
 		for(int i = 0; i < pointArray.length; i += 2)
 		{
-			pointArrayScaled[i + 0] = sx(pointArray[i + 0]);
-			pointArrayScaled[i + 1] = sy(pointArray[i + 1]);
+			pointArrayScaled[i + 0] = tx(pointArray[i + 0]);
+			pointArrayScaled[i + 1] = ty(pointArray[i + 1]);
 		}
 		gc.drawPolygon(pointArrayScaled);
 	}
@@ -134,30 +147,30 @@ public class TranslatedGC implements GeneralGC
 		double[] pointArrayScaled = new double[pointArray.length];
 		for(int i = 0; i < pointArray.length; i += 2)
 		{
-			pointArrayScaled[i + 0] = sx(pointArray[i + 0]);
-			pointArrayScaled[i + 1] = sy(pointArray[i + 1]);
+			pointArrayScaled[i + 0] = tx(pointArray[i + 0]);
+			pointArrayScaled[i + 1] = ty(pointArray[i + 1]);
 		}
 		gc.drawPolyline(pointArrayScaled);
 	}
 	@Override
 	public void drawRectangle(double x, double y, double width, double height)
 	{
-		gc.drawRectangle(sx(x), sy(y), s(width), s(height));
+		gc.drawRectangle(tx(x), ty(y), sx(width), sy(height));
 	}
 	@Override
 	public void drawRectangle(Rectangle rect)
 	{
-		gc.drawRectangle(rect.translate(imgOffX, imgOffY, zoom));
+		gc.drawRectangle(rect.translate(imgOffX, imgOffY, zoomX, zoomY));
 	}
 	@Override
 	public void drawRoundRectangle(double x, double y, double width, double height, double arcWidth, double arcHeight)
 	{
-		gc.drawRoundRectangle(sx(x), sy(y), s(width), s(height), s(arcWidth), s(arcHeight));
+		gc.drawRoundRectangle(tx(x), ty(y), sx(width), sy(height), sx(arcWidth), sy(arcHeight));
 	}
 	@Override
 	public void drawString(String string, double x, double y)
 	{
-		gc.drawString(string, sx(x), sy(y));
+		gc.drawString(string, tx(x), ty(y));
 	}
 	@Override
 	public void drawString(String string, double x, double y, boolean isTransparent)
@@ -167,12 +180,12 @@ public class TranslatedGC implements GeneralGC
 	@Override
 	public void drawText(String string, double x, double y)
 	{
-		gc.drawText(string, sx(x), sy(y));
+		gc.drawText(string, tx(x), ty(y));
 	}
 	@Override
 	public void drawText(String string, double x, double y, boolean isTransparent)
 	{
-		gc.drawText(string, sx(x), sy(y), isTransparent);
+		gc.drawText(string, tx(x), ty(y), isTransparent);
 	}
 	@Override
 	public void drawText(String string, double x, double y, int flags)
@@ -182,7 +195,7 @@ public class TranslatedGC implements GeneralGC
 	@Override
 	public void fillArc(double x, double y, double width, double height, double startAngle, double arcAngle)
 	{
-		gc.fillArc(sx(x), sy(y), s(width), s(height), startAngle, arcAngle);
+		gc.fillArc(tx(x), ty(y), sx(width), sy(height), startAngle, arcAngle);
 	}
 	@Override
 	public void fillGradientRectangle(double x, double y, double width, double height, boolean vertical)
@@ -192,12 +205,12 @@ public class TranslatedGC implements GeneralGC
 	@Override
 	public void fillOval(double x, double y, double width, double height)
 	{
-		gc.fillOval(sx(x), sy(y), s(width), s(height));
+		gc.fillOval(tx(x), ty(y), sx(width), sy(height));
 	}
 	@Override
 	public void fillPath(Path path)
 	{
-		gc.fillPath(path.translate(imgOffX, imgOffY, zoom));
+		gc.fillPath(path.translate(imgOffX, imgOffY, zoomX, zoomY));
 	}
 	@Override
 	public void fillPolygon(double[] pointArray)
@@ -207,7 +220,7 @@ public class TranslatedGC implements GeneralGC
 	@Override
 	public void fillRectangle(double x, double y, double width, double height)
 	{
-		gc.fillRectangle(sx(x), sy(y), s(width), s(height));
+		gc.fillRectangle(tx(x), ty(y), sx(width), sy(height));
 	}
 	@Override
 	public void fillRectangle(Rectangle rect)
@@ -217,7 +230,7 @@ public class TranslatedGC implements GeneralGC
 	@Override
 	public void fillRoundRectangle(double x, double y, double width, double height, double arcWidth, double arcHeight)
 	{
-		gc.fillRoundRectangle(sx(x), sy(y), s(width), s(height), s(arcWidth), s(arcHeight));
+		gc.fillRoundRectangle(tx(x), ty(y), sx(width), sy(height), sx(arcWidth), sy(arcHeight));
 	}
 	@Override
 	public double getAdvanceWidth(char ch)
@@ -280,7 +293,9 @@ public class TranslatedGC implements GeneralGC
 	@Override
 	public Font getFont()
 	{
-		return gc.getFont().unscale(zoom);
+		//TODO we have to choose here, which isn't optimal.
+		// Since most text is rather wide than high, use zoomY.
+		return gc.getFont().unscale(zoomY);
 	}
 	@Override
 	public FontMetrics getFontMetrics()
@@ -328,7 +343,9 @@ public class TranslatedGC implements GeneralGC
 			return null;
 		double[] dashesUnscaled = new double[dashesScaled.length];
 		for(int i = 0; i < dashesScaled.length; i ++)
-			dashesUnscaled[i] = s(dashesScaled[i]);
+			//TODO we have to choose here, which isn't optimal.
+			// Arbitrarily use zoomY.
+			dashesUnscaled[i] = sy(dashesScaled[i]);
 		return dashesUnscaled;
 	}
 	@Override
@@ -344,7 +361,9 @@ public class TranslatedGC implements GeneralGC
 	@Override
 	public double getLineWidth()
 	{
-		return si(gc.getLineWidth());
+		//TODO we have to choose here, which isn't optimal.
+		// Arbitrarily use zoomY.
+		return siy(gc.getLineWidth());
 	}
 	@Override
 	public int getStyle()
@@ -361,7 +380,7 @@ public class TranslatedGC implements GeneralGC
 	{
 		gc.getTransform(transform);
 		transform.translate((float) -imgOffX, (float) -imgOffY);
-		transform.scale((float) zoom, (float) zoom);
+		transform.scale((float) zoomX, (float) zoomY);
 	}
 	@Override
 	public boolean getXORMode()
@@ -409,12 +428,12 @@ public class TranslatedGC implements GeneralGC
 	@Override
 	public void setClipping(double x, double y, double width, double height)
 	{
-		gc.setClipping(sx(x), sy(y), s(width), s(height));
+		gc.setClipping(tx(x), ty(y), sx(width), sy(height));
 	}
 	@Override
 	public void setClipping(Path path)
 	{
-		gc.setClipping(path.translate(imgOffX, imgOffY, zoom));
+		gc.setClipping(path.translate(imgOffX, imgOffY, zoomX, zoomY));
 	}
 	@Override
 	public void setClipping(Rectangle rect)
@@ -422,7 +441,7 @@ public class TranslatedGC implements GeneralGC
 		if(rect == null)
 			gc.setClipping(rect);
 		else
-			gc.setClipping(sx(rect.x), sy(rect.y), s(rect.width), s(rect.height));
+			gc.setClipping(tx(rect.x), ty(rect.y), sx(rect.width), sy(rect.height));
 	}
 	@Override
 	public void setClipping(Region region)
@@ -437,7 +456,9 @@ public class TranslatedGC implements GeneralGC
 	@Override
 	public void setFont(Font font)
 	{
-		gc.setFont(font.scale(zoom));
+		//TODO we have to choose here, which isn't optimal.
+		// Since most text is rather wide than high, use zoomY.
+		gc.setFont(font.scale(zoomY));
 	}
 	@Override
 	public void setForeground(Color color)
@@ -474,7 +495,9 @@ public class TranslatedGC implements GeneralGC
 		{
 			double[] dashesScaled = new double[dashes.length];
 			for(int i = 0; i < dashes.length; i ++)
-				dashesScaled[i] = s(dashes[i]);
+				//TODO we have to choose here, which isn't optimal.
+				// Arbitrarily use zoomY.
+				dashesScaled[i] = sy(dashes[i]);
 			gc.setLineDash(dashesScaled);
 		} else
 			gc.setLineDash(null);
@@ -492,7 +515,9 @@ public class TranslatedGC implements GeneralGC
 	@Override
 	public void setLineWidth(double lineWidth)
 	{
-		gc.setLineWidth(s(lineWidth));
+		//TODO we have to choose here, which isn't optimal.
+		// Arbitrarily use zoomY.
+		gc.setLineWidth(sy(lineWidth));
 	}
 
 	@Override
@@ -515,7 +540,7 @@ public class TranslatedGC implements GeneralGC
 		{
 			float[] floatsBuf = new float[6];
 			transform.getElements(floatsBuf);
-			transform.scale((float) (1 / zoom), (float) (1 / zoom));
+			transform.scale((float) (1 / zoomX), (float) (1 / zoomY));
 			transform.translate((float) imgOffX, (float) imgOffY);
 			gc.setTransform(transform);
 			transform.setElements(floatsBuf[0], floatsBuf[1], floatsBuf[2], floatsBuf[3], floatsBuf[4], floatsBuf[5]);
@@ -530,8 +555,8 @@ public class TranslatedGC implements GeneralGC
 	public Point textExtent(String string)
 	{
 		Point textExtent = gc.textExtent(string);
-		textExtent.x = si(textExtent.x);
-		textExtent.y = si(textExtent.y);
+		textExtent.x = six(textExtent.x);
+		textExtent.y = siy(textExtent.y);
 		return textExtent;
 	}
 	@Override
