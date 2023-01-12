@@ -8,7 +8,7 @@ Export-Package: net.haspamelodica.swt.helper,
  net.haspamelodica.swt.helper.tiledzoomablecanvas.helper,
  net.haspamelodica.swt.helper.tiledzoomablecanvas.tilecachingpolicy,
  net.haspamelodica.swt.helper.tiledzoomablecanvas.tilecachingpolicy.lists
-Require-Bundle: org.eclipse.swt;bundle-version="3.110.0",
+Require-Bundle: org.eclipse.swt;bundle-version="3.122.0",
  SWTZoomableCanvas;bundle-version="1.0.0";visibility:=reexport
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: SWTTiledZoomableCanvas

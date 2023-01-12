@@ -448,7 +448,6 @@ public class SWTGC implements GeneralGC
 		gc.setLineWidth((int) lineWidth);
 	}
 	@Override
-	@SuppressWarnings("deprecation")
 	public void setXORMode(boolean xor)
 	{
 		gc.setXORMode(xor);
