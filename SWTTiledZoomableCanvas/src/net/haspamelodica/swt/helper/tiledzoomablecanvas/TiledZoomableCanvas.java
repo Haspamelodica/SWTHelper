@@ -398,8 +398,8 @@ public class TiledZoomableCanvas extends ZoomableCanvas
 					Color oldForeground = untranslatedGC.getForeground();
 					int oldAlpha = untranslatedGC.getAlpha();
 
-					double pxWidthX = TILE_WIDTH / tilePos.width;
-					double pxWidthY = TILE_WIDTH / tilePos.height;
+					double pxWidthX = tilePos.width / TILE_WIDTH;
+					double pxWidthY = tilePos.height / TILE_WIDTH;
 
 					int xDst, yDst;
 					double xImg, yImg;
